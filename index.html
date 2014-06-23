@@ -1,0 +1,38 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html lang="ru">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>MTeditor</title>
+        <link rel="stylesheet" type="text/css" media="screen" href="style.css"/>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.js"></script>
+        <script type="text/javascript" src="js/jquery.jqUploader.js"></script>
+        <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/smoothness/jquery-ui.css" />
+        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/jquery-ui.js"></script>
+        <script type="text/javascript" src="js/mteditor.js"></script>
+    </head>
+    <body>
+
+    <!-- Форма -->
+    <textarea id="content" class="form-editor form-control" data-target="#content" data-toggle="editor" rows="6" cols="50" name="content">Some text</textarea>
+    <hr />
+    <textarea id="content2" class="form-editor form-control" data-target="#content2" data-toggle="editor" rows="6" cols="50" name="content2">Some text</textarea>
+
+    <!-- Обработка формы -->
+    <script type="text/javascript">
+        // Запустим плагин на блоках с атрибутом data-toggle="editor"
+        // Пример раздельных настроек для каждого блока
+        $('[data-toggle="editor"]#content').MTeditor({
+            menuDivider: '|',
+            activeMode: 'raw',
+            resizable: true
+        });
+        $('[data-toggle="editor"]#content2').MTeditor();
+        // Пример одинаковых настроек для всех блоков
+        //$('[data-toggle="editor"]').MTeditor({
+        //    menuDivider: '|'
+        //    activeMode: 'raw',
+        //});
+    </script>
+
+    </body>
+</html>
