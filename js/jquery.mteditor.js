@@ -83,13 +83,27 @@
          * Plugin functions
          */
         var draw = function(block) {
-            console.log('Proceeding block', block);
+            console.log('\nProceeding block', block);
 
-            var blockId = block.attr('id'),
+            var $block = $(block),
+                blockId = $block.attr('id'),
                 divider = options.menuDivider;
             console.log('blockId', blockId);
             console.log('Menu buttons', fnMenu);
             console.log('Menu divider', divider);
+
+            // Make the MTeditor-block
+            wrapper = $(wrapper).attr('id', blockId);
+            console.log('wrapper', wrapper);
+            if (options.resizable === true) {
+                wrapper.addClass('resizable').resizable();
+            }
+
+            // Add the menu-block into MTeditor
+            wrapper.append(menuWrapper).append($(content).attr('contentEditable', true));
+
+            // Hide TEXTAREA and draw MTeditor-block
+            $block.hide().before(wrapper);
         }
 
         /*
@@ -99,7 +113,7 @@
             //console.log('Founded block', this);
             var $this = $(this);
             //console.log('$this', $this);
-            draw($this);
+            draw(this);
         });
     };
 

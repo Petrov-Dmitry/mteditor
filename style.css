@@ -1,5 +1,22 @@
+.ui-resizable-e {
+    width: 0 !important;
+}
+.ui-resizable-s {
+    height: 0 !important;
+}
 .mteditor {
     width: 400px;
     height: 100px;
     border: 1px solid #ccc;
+}
+.mteditor .menu {
+    height: 30px;
+    border: 1px solid #ccc;
+}
+.mteditor .content {
+    height: 68px;
+    height: -moz-calc(100% - 30px);
+    height: -webkit-calc(100% - 30px);
+    height: -o-calc(100% - 30px);
+    height: calc(100% - 30px);
 }
