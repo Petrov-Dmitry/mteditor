@@ -48,3 +48,99 @@
     overflow: auto;
     border: 1px solid #ccc;
 }
+
+
+
+/* ===================================================== */
+.mte_wrapper { display: table; border: 1px solid #ccc; margin: 0 0 10px; }
+.mte_div{font-size: 13px; font-family: tahoma; border: solid 1px #ccc; background: #fff; padding: 2px 5px; overflow-y: auto;}
+.mte_div img{margin: 5px;}
+.mte_div h1, .mte_div h2, .mte_div h3{color: #444; background-color: #fff; background-image: none; padding: 0; margin: 10px 0;}
+.mte_div h1{font-size: 28px;}
+.mte_div h2{font-size: 24px;}
+.mte_div h3{font-size: 18px;}
+
+.mte_toolbar{float: left; margin: 0; padding: 0;}
+.mte_toolbar>li{float: left; list-style-type: none;}
+.mte_toolbar_button{display: block; width: 30px; height: 30px; background-repeat: no-repeat; background-position: 4px 4px;}
+.mte_toolbar_button:hover{border: solid 1px #bcbcbc; border-radius: 3px; width: 28px; height: 28px;}
+
+/* English toolbar icons, by default */
+.mte_toolbar_button__bold{background-image: url(img/toolbar/bold.png) }
+.mte_toolbar_button__italic{background-image: url(img/toolbar/italic.png) }
+.mte_toolbar_button__strike{background-image: url(img/toolbar/strike.png) }
+.mte_toolbar_button__underline{background-image: url(img/toolbar/underline.png) }
+.mte_toolbar_button__left{background-image: url(img/toolbar/left.png) }
+.mte_toolbar_button__center{background-image: url(img/toolbar/center.png) }
+.mte_toolbar_button__right{background-image: url(img/toolbar/right.png) }
+.mte_toolbar_button__ol{background-image: url(img/toolbar/ol.png) }
+.mte_toolbar_button__ul{background-image: url(img/toolbar/ul.png) }
+.mte_toolbar_button__h1{background-image: url(img/toolbar/h1.png) }
+.mte_toolbar_button__h2{background-image: url(img/toolbar/h2.png) }
+.mte_toolbar_button__h3{background-image: url(img/toolbar/h3.png) }
+.mte_toolbar_button__h4{background-image: url(img/toolbar/h4.png) }
+.mte_toolbar_button__h5{background-image: url(img/toolbar/h5.png) }
+.mte_toolbar_button__h6{background-image: url(img/toolbar/h6.png) }
+.mte_toolbar_button__image{background-image: url(img/toolbar/image.png) }
+.mte_toolbar_button__link{background-image: url(img/toolbar/link.png) }
+.mte_toolbar_button__video{background-image: url(img/toolbar/video.png) }
+.mte_toolbar_button__undo{background-image: url(img/toolbar/undo.png) }
+.mte_toolbar_button__redo{background-image: url(img/toolbar/redo.png) }
+.mte_toolbar_button__removeformat{background-image: url(img/toolbar/removeformat.png) }
+.mte_toolbar_button__source{background-image: url(img/toolbar/source.png) }
+
+/* Russian toolbar icons */
+.mte-lang_ru .mte_toolbar_button__bold {background-image: url(img/toolbar/ru/bold.png) }
+.mte-lang_ru .mte_toolbar_button__italic{background-image: url(img/toolbar/ru/italic.png) }
+.mte-lang_ru .mte_toolbar_button__strike{background-image: url(img/toolbar/ru/strike.png) }
+.mte-lang_ru .mte_toolbar_button__underline{background-image: url(img/toolbar/ru/underline.png) }
+.mte-lang_ru .mte_toolbar_button__h1{background-image: url(img/toolbar/ru/h1.png) }
+.mte-lang_ru .mte_toolbar_button__h2{background-image: url(img/toolbar/ru/h2.png) }
+.mte-lang_ru .mte_toolbar_button__h3{background-image: url(img/toolbar/ru/h3.png) }
+.mte-lang_ru .mte_toolbar_button__h4{background-image: url(img/toolbar/ru/h4.png) }
+.mte-lang_ru .mte_toolbar_button__h5{background-image: url(img/toolbar/ru/h5.png) }
+.mte-lang_ru .mte_toolbar_button__h6{background-image: url(img/toolbar/ru/h6.png) }
+
+
+
+.mte_switch{font-size: 12px; margin: 2px 5px; padding: 0; list-style-type: none; float: right;}
+
+.mte_modal_background{
+    position: fixed;
+    margin: auto;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50000;
+    -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=60)";
+    filter:alpha(opacity=60);
+    opacity: 0.60;
+    background-color: #000 !important;
+}
+.mte_modal{
+    background-color: #fff;
+    position: fixed;
+    box-shadow: 0px 5px 20px #333;
+    -webkit-box-shadow: 0 5px 20px #333;
+    -moz-box-shadow: 0 5px 20px #333;
+    z-index: 50001;
+    font-family: "Trebuchet MS", "Helvetica Neue", "Lucida Grande", Helvetica, Arial, Verdana, sans-serif;
+    font-size: 14px;
+    color: #000;
+    padding: 15px;
+    border-radius: 7px;
+}
+.mte_modal_close{
+    position: absolute;
+    top: -15px;
+    right: -15px;
+    width: 30px;
+    height: 30px;
+    background-image: url(img/close.png);
+    cursor: pointer;
+}
+
+.mte_modal h1{font-size: 20px;}
+.mte_modal_throbber{display: inline-block; width: 16px; height: 16px; background-image: url(img/throbber.gif);}
+.mte_modal_thumb{max-width: 50px;}
