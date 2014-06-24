@@ -147,6 +147,11 @@
                         //console.log('Button ready', button);
                         // Insert option into the select
                         select.append(button);
+                        // Make selection
+                        if (options.activeMode == key) {
+                            //button.attr('selected', true);
+                            select.val(key);
+                        }
                         // Insert select into the group
                         group.append(select);
                     });
@@ -178,7 +183,48 @@
             var $this = $(this);
             //console.log('$this', $this);
             block = draw(this);
-            console.log('block', block);
+            blockId = block.attr('id');
+            text = block.find('.content').html();
+            console.log('block ' + blockId, block);
+            console.log('text', text);
+
+            // MTeditor menu items
+            buttons = block.find('.button');
+            selectMode = block.find('select[name="editorMode"]');
+            selectText = block.find('select[name="headers"]');
+            console.log('buttons', buttons);
+            console.log('selectMode', selectMode);
+            console.log('selectText', selectText);
+
+            // Catch the clicks on buttons
+            buttons.click(function() {
+                console.log('Button click detected', this);
+                method = $(this).attr('id');
+                console.log('Calling method ' + method);
+                editor = $(this).closest('.mteditor');
+                editorId = editor.attr('id');
+                console.log('Parent editor-block is '+ editorId, editor);
+            });
+
+            // Catch the changing selectMode
+            selectMode.change(function() {
+                console.log('selectMode change detected', this);
+                method = $(this).val();
+                console.log('Change editor mode to: ' + method);
+                editor = $(this).closest('.mteditor');
+                editorId = editor.attr('id');
+                console.log('Parent editor-block is '+ editorId, editor);
+            });
+
+            // Catch the changing selectText
+            selectText.change(function() {
+                console.log('selectText change detected', this);
+                method = $(this).val();
+                console.log('Change text to: ' + method);
+                editor = $(this).closest('.mteditor');
+                editorId = editor.attr('id');
+                console.log('Parent editor-block is '+ editorId, editor);
+            });
         });
     };
 

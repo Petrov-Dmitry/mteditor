@@ -33,8 +33,9 @@
     text-indent: -1000px;
 }
 .mteditor .menu .divider {
-    border: 1px solid #ccc;
+    border-right: 1px solid #ccc;
     height: 100%;
+    margin: 0 5px;
 }
 
 .mteditor .content {
