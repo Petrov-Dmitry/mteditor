@@ -5,18 +5,45 @@
     height: 0 !important;
 }
 .mteditor {
-    width: 400px;
-    height: 100px;
+    width: 1000px;
+    height: 200px;
     border: 1px solid #ccc;
 }
+
 .mteditor .menu {
     height: 30px;
     border: 1px solid #ccc;
 }
+.mteditor .menu .group {
+}
+.mteditor .menu .divider,
+.mteditor .menu .group,
+.mteditor .menu .group select,
+.mteditor .menu .group .button {
+    display: inline-block;
+    vertical-align: middle;
+}
+.mteditor .menu .group select {
+}
+.mteditor .menu .group .button {
+    margin: 2px;
+    width: 22px;
+    height: 22px;
+    border: 1px solid #ccc;
+    text-indent: -1000px;
+}
+.mteditor .menu .divider {
+    border: 1px solid #ccc;
+    height: 100%;
+}
+
 .mteditor .content {
     height: 68px;
-    height: -moz-calc(100% - 30px);
-    height: -webkit-calc(100% - 30px);
-    height: -o-calc(100% - 30px);
-    height: calc(100% - 30px);
+    height: -moz-calc(100% - 60px);
+    height: -webkit-calc(100% - 60px);
+    height: -o-calc(100% - 60px);
+    height: calc(100% - 60px);
+    padding: 5px;
+    overflow: auto;
+    border: 1px solid #ccc;
 }
