@@ -2,6 +2,7 @@ function mte(textarea, options) {
     "use strict";
 
     this.default_language = 'ru';
+    this.default_mode = 'visual';
     var _this = this;
     this.$textarea = $(textarea);
 
@@ -15,6 +16,7 @@ function mte(textarea, options) {
     this.options.uploaderUrl = this.options.uploaderUrl || '/upload/add/images/';
     this.toolbarButtons = this.options.toolbarButtons || this.toolbarButtons;
     this.language = this.options.language || this.default_language;
+    this.options.mode = this.options.mode || this.default_mode;
 
     // Wrap the editor
     this.$textarea.wrap('<div class="mte_wrapper mte-lang_' + this.language + '"></div>');
@@ -494,7 +496,11 @@ mte.prototype = {
 
     $.fn.mte = function (options) {
         var editor = new mte(this, options);
-        editor.visualMode();
+        if (options && options.mode === 'html') {
+            editor.htmlMode();
+        } else {
+            editor.visualMode();
+        }
         return editor;
     };
 }(jQuery));
