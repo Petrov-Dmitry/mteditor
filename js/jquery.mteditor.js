@@ -94,6 +94,8 @@ mte.prototype = {
         'underline',
         'ol',
         'ul',
+        'l_up',
+        'l_down',
         'h1',
         'h2',
         'h3',
@@ -125,7 +127,8 @@ mte.prototype = {
             document.execCommand('Underline', false, true);
             this.$div.focus();
             return false;
-        },'ol': function () {
+        },
+        'ol': function () {
             document.execCommand('InsertOrderedList', false, true);
             this.$div.focus();
             return false;
@@ -135,6 +138,89 @@ mte.prototype = {
             this.$div.focus();
             return false;
         },
+        /* ===================================== */
+        'l_up': function() {
+            listType = this.savedRange.startContainer.parentElement.parentElement.localName;    // UL or OL
+            listElement = this.savedRange.startContainer.parentElement;                         // selected UL or OL
+            console.log('\n\nThis is l_up function', listType, listElement, this);
+
+            // Если не на первом уровне вложенности, то обрежем тег-родитель для parentElement
+            isFirstLevel = this.savedRange.startContainer.parentElement.parentElement.parentElement.localName !== listType;
+            if (!isFirstLevel) {
+                // Получаем список (ul или ol) с выделенными вложениями
+                list = $(listElement).parent();
+
+                // Выясняем есть ли в списке элементы перед и после выбранных
+                beforeList = $(this.savedRange.startContainer.parentElement).prevAll();
+                isBefore = Boolean(beforeList.length);
+                afterList = $(this.savedRange.endContainer.parentElement).nextAll();
+                isAfter = Boolean(afterList.length);
+                console.log('Before', isBefore, beforeList,
+                            'After', isAfter, afterList);
+
+                // Получим список выделенных фрагментов
+                selectedElements = this.getSelectedHtml();
+
+                // если нет элементов ни до, ни после выбранных
+                if (isBefore == false && isAfter == false) {
+                    list.before(selectedElements).remove();
+
+                // если есть элементы до и после выбранных
+                } else if (isBefore == true && isAfter == true) {
+                    afterList = afterList.remove();
+                    selectedElements = $(selectedElements).remove();
+                    beforeList = list.children();
+
+                    list.before($('<'+ listType +'>').append(beforeList));
+                    list.before(selectedElements);
+                    list.before($('<'+ listType +'>').append(afterList));
+
+                    afterList = list.nextAll('ol, ul, li').remove();
+                    list.before(afterList);
+                    list.remove();
+
+                // если нет элементов перед выбранными
+                } else if (isBefore == false && isAfter == true) {
+                    list.before($(selectedElements).remove());
+                    list.after(list.next('ul, ol, li').remove());
+
+                // если нет элементов после выбранных
+                } else if (isBefore == true && isAfter == false) {
+                    selectedElements = $(selectedElements).remove();
+                    listAfter = list.nextAll().remove();
+                    list.after(listAfter).after(selectedElements);
+                }
+
+                // Если список остался пустым - удалить
+                if (!list.children().length) {
+                    console.log('Delete needed');
+                    list.remove();
+                }
+            }
+
+            this.$div.focus();
+            return false;
+        },
+        'l_down': function() {
+            console.log('This is l_down function');
+            /*
+            listType = this.savedRange.startContainer.parentElement.parentElement.localName;
+            if (listType === 'ol') {
+                command = 'InsertOrderedList';
+            } else {
+                command = 'InsertUnorderedList';
+            }
+            parentElement = this.savedRange.startContainer.parentElement;
+            console.log('This is l_down function', this.savedRange, listType, parentElement);
+
+            // Обернуть parentElement в тег listType
+            $(parentElement).wrap('<'+listType+'></'+listType+'>');
+            */
+
+            this.$div.focus();
+            return false;
+        },
+        /* ===================================== */
         'h1': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h1>');
@@ -274,6 +360,8 @@ mte.prototype = {
             'toolbar.underline': 'Underline',
             'toolbar.ol': 'Ordered List',
             'toolbar.ul': 'Unordered List',
+            'toolbar.l_up': 'List level up',
+            'toolbar.l_down': 'List level down',
             'toolbar.h1': 'Headline 1',
             'toolbar.h2': 'Headline 2',
             'toolbar.h3': 'Headline 3',
@@ -304,6 +392,8 @@ mte.prototype = {
             'toolbar.underline': 'Подчеркивание',
             'toolbar.ol': 'Нумерованый список',
             'toolbar.ul': 'Ненумерованный список',
+            'toolbar.l_up': 'На уровень выше',
+            'toolbar.l_down': 'На уровень ниже',
             'toolbar.h1': 'Заголовок 1',
             'toolbar.h2': 'Заголовок 2',
             'toolbar.h3': 'Заголовок 3',
@@ -455,6 +545,38 @@ mte.prototype = {
         if (document.selection && document.selection.type !== "Control") {
             // IE 8 and below
             return document.selection;
+        }
+    },
+
+    getSelectedHtml: function() {
+        var selection = window.getSelection();
+        //console.log('This is getSelectedHtml()', selection);
+        if( selection ) {
+            var range = (document.all ? selection.createRange() : selection.getRangeAt(selection.rangeCount - 1).cloneRange());
+            //console.log('range', range);
+
+            // Получим первый и последний выделенные элементы
+            startElement = $(range.startContainer).parent();
+            endElement = $(range.endContainer).parent();
+            // Получим список элементов между первым и последним
+            listElements = startElement.nextAll().not(endElement).not($(endElement).nextAll());
+            //console.log('startElement', startElement.get());
+            //console.log('betweenElements', listElements.get());
+            //console.log('endElement', endElement.get());
+
+            // Построим единый список выделенных элементов
+            // Если есть betweenElements - объеденим их с startElement
+            if (listElements.length > 0) {
+                listElements = $.merge(startElement.get(), listElements.get());
+            } else {
+                listElements = startElement.get();
+            }
+            // Если первый и последний элементы - не одно и то-же
+            if (startElement.get(0) !== endElement.get(0)) {
+                listElements = $.merge(listElements, endElement.get());
+            }
+            //console.log(listElements.length + ' selectedElements', listElements);
+            return listElements;
         }
     },
 
