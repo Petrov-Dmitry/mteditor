@@ -28,6 +28,7 @@ function mte(textarea, options) {
     this.$div = this.$textarea.siblings('.mte_div');
     this.$div.attr('contenteditable', 'true');
     this.$div.html(this.$textarea.html());
+
     // Set width and height of editable block
     this.$div.width(this.$textarea.width() - (this.$div.outerWidth() - this.$div.width()));
     this.$div.height(this.$textarea.height() - (this.$div.outerHeight() - this.$div.height()));
@@ -82,8 +83,8 @@ function mte(textarea, options) {
     });
 
 
-    //this.templates['image-form'] = this.templates['image-form'].replace('{{UPLOADER_URL}}', this.options.uploaderUrl);
     // AJAX image uploading
+    this.templates['image-form'] = this.templates['image-form'].replace('{{UPLOADER_URL}}', this.options.uploaderUrl);
 }
 
 mte.prototype = {
@@ -113,36 +114,41 @@ mte.prototype = {
             this.$div.focus();
             return false;
         },
+
         'italic': function () {
             document.execCommand('Italic', false, true);
             this.$div.focus();
             return false;
         },
+
         'strike': function () {
             document.execCommand('StrikeThrough', false, true);
             this.$div.focus();
             return false;
         },
+
         'underline': function () {
             document.execCommand('Underline', false, true);
             this.$div.focus();
             return false;
         },
+
         'ol': function () {
             document.execCommand('InsertOrderedList', false, true);
             this.$div.focus();
             return false;
         },
+
         'ul': function () {
             document.execCommand('InsertUnorderedList', false, true);
             this.$div.focus();
             return false;
         },
-        /* ===================================== */
+
+        // Переместить элементы списка на уровень вверх
         'l_up': function() {
             listType = this.savedRange.startContainer.parentElement.parentElement.localName;    // UL or OL
             listElement = this.savedRange.startContainer.parentElement;                         // selected UL or OL
-            console.log('\n\nThis is l_up function', listType, listElement, this);
 
             // Если не на первом уровне вложенности, то обрежем тег-родитель для parentElement
             isFirstLevel = this.savedRange.startContainer.parentElement.parentElement.parentElement.localName !== listType;
@@ -155,8 +161,6 @@ mte.prototype = {
                 isBefore = Boolean(beforeList.length);
                 afterList = $(this.savedRange.endContainer.parentElement).nextAll();
                 isAfter = Boolean(afterList.length);
-                console.log('Before', isBefore, beforeList,
-                            'After', isAfter, afterList);
 
                 // Получим список выделенных фрагментов
                 selectedElements = this.getSelectedHtml();
@@ -193,7 +197,6 @@ mte.prototype = {
 
                 // Если список остался пустым - удалить
                 if (!list.children().length) {
-                    console.log('Delete needed');
                     list.remove();
                 }
             }
@@ -201,32 +204,59 @@ mte.prototype = {
             this.$div.focus();
             return false;
         },
-        'l_down': function() {
-            console.log('This is l_down function');
-            /*
-            listType = this.savedRange.startContainer.parentElement.parentElement.localName;
-            if (listType === 'ol') {
-                command = 'InsertOrderedList';
-            } else {
-                command = 'InsertUnorderedList';
-            }
-            parentElement = this.savedRange.startContainer.parentElement;
-            console.log('This is l_down function', this.savedRange, listType, parentElement);
 
-            // Обернуть parentElement в тег listType
-            $(parentElement).wrap('<'+listType+'></'+listType+'>');
-            */
+        // Переместить элементы списка на уровень вниз
+        'l_down': function() {
+            listType = this.savedRange.startContainer.parentElement.parentElement.localName;
+            listElement = this.savedRange.startContainer.parentElement;
+
+            // Получаем список (ul или ol) с выделенными вложениями
+            list = $(listElement).parent();
+
+            // Найти соседние списки
+            listBefore = $(listElement).prev(listType);
+            listAfter = $(listElement).next(listType);
+
+            // Получим список выделенных фрагментов
+            selectedElements = this.getSelectedHtml();
+
+            // Если перед и после элементов нет списков
+            if (Boolean(listBefore.length) === false && Boolean(listAfter.length) === false) {
+                // Обернем выбранные элементы в список
+                $(selectedElements).wrapAll('<'+ listType +'></'+ listType +'>');
+            // Если есть списки и до, и после элементов
+            } else if (Boolean(listBefore.length) === true && Boolean(listAfter.length) === true) {
+                // Сформируем новый список
+                newList = $('<'+listType+'></'+listType+'>')
+                            .append(listBefore.children())
+                            .append(selectedElements)
+                            .append(listAfter.children());
+                // Запишем новый список
+                listBefore.before(newList);
+                // Почистим "обрезки"
+                listBefore.remove();
+                listAfter.remove();
+            // Если список только сверху
+            } else if (Boolean(listBefore.length) === true && Boolean(listAfter.length) === false) {
+                // допишем выбранные элементы в конец списка сверху
+                listBefore.append(selectedElements);
+            // Если список только снизу
+            } else if (Boolean(listBefore.length) === false && Boolean(listAfter.length) === true) {
+                // допишем выбранные элементы в начало списка снизу
+                listAfter.prepend(selectedElements);
+            }
 
             this.$div.focus();
             return false;
         },
-        /* ===================================== */
+
         'h1': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h1>');
             this.$div.focus();
             return false;
         },
+
         'h2': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h2>');
@@ -234,30 +264,35 @@ mte.prototype = {
             return false;
 
         },
+
         'h3': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h3>');
             this.$div.focus();
             return false;
         },
+
         'h4': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h4>');
             this.$div.focus();
             return false;
         },
+
         'h5': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h5>');
             this.$div.focus();
             return false;
         },
+
         'h6': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h6>');
             this.$div.focus();
             return false;
         },
+
         'image': function() {
             this.showModal('image-form');
             var _this = this;
@@ -269,6 +304,7 @@ mte.prototype = {
                 _this.insertHtml('<img src="' + url + '" />');
             });
         },
+
         'link': function() {
             this.showModal('link-form');
             var text = this.getSelectedText();
@@ -285,6 +321,7 @@ mte.prototype = {
                 _this.insertHtml('<a href="' + url + '">' + name + '</a>');
             });
         },
+
         'removeformat': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<p>');
@@ -465,7 +502,10 @@ mte.prototype = {
         if (this.mode === 'html') {
             return;
         }
-        this.$textarea.val(this.$div.html());
+        console.log(this);
+        if (this.options.mode !== 'html') {
+            this.$textarea.val(this.$div.html());
+        }
         this.$textarea.show();
         this.$div.hide();
         $('.mte_switch_html', this.$wrapper).hide();
@@ -560,9 +600,6 @@ mte.prototype = {
             endElement = $(range.endContainer).parent();
             // Получим список элементов между первым и последним
             listElements = startElement.nextAll().not(endElement).not($(endElement).nextAll());
-            //console.log('startElement', startElement.get());
-            //console.log('betweenElements', listElements.get());
-            //console.log('endElement', endElement.get());
 
             // Построим единый список выделенных элементов
             // Если есть betweenElements - объеденим их с startElement
@@ -575,7 +612,6 @@ mte.prototype = {
             if (startElement.get(0) !== endElement.get(0)) {
                 listElements = $.merge(listElements, endElement.get());
             }
-            //console.log(listElements.length + ' selectedElements', listElements);
             return listElements;
         }
     },
@@ -626,238 +662,3 @@ mte.prototype = {
         return editor;
     };
 }(jQuery));
-
-/*
- * =========================================================
- */
-(function( $ ) {
-    /**
-     * WYSIWYG MTeditor plugin
-     */
-    $.fn.MTeditor = function(options) {
-        //console.log('\n\nPlugin MTeditor is starting');
-
-        /*
-         * MTeditor fuctions menu
-         */
-        fnMenu = {
-            editorMode:{
-                html:'Visual',
-                raw:'Source'
-            },
-            textTypes:{
-                headers:{
-                    plain:'Plain text',
-                    h1:'Header 1',
-                    h2:'Header 2',
-                    h3:'Header 3',
-                    h4:'Header 4',
-                    h5:'Header 5',
-                    h6:'Header 6'
-                },
-                paragrapth:'Paragraph'
-            },
-            textHighlighting:{
-                bold:'Bold',
-                italic:'Italic',
-                strike:'Strikeout',
-                underlined:'Underlined'
-            },
-            lists:{
-                ul:'Marked',
-                ol:'Numbered',
-                levelUp:'Level up',
-                levelDown:'Level down'
-            },
-            tables:{
-                table:'Table',
-                tableCols:'Collumns',
-                tableRows:'Rows'
-            },
-            others:{
-                link:'Insert link',
-                image:'Insert image'
-            },
-            clear:{
-                clear:'Clear formatting'
-            }
-        };
-        //console.log('MTeditor function-buttons', fnMenu);
-
-        /*
-         * Plugin HTML-codes
-         */
-        var wrapper = '<div class="mteditor"></div>',
-            menuWrapper = '<div class="menu"></div>',
-            menuGroup = '<div class="group"></div>',
-            menuSel = '<select></select>',
-            menuSelOption = '<option></option>',
-            menuButton = '<div class="button"></div>',
-            content = '<div class="content"></div>';
-        //console.log('MTeditor wrapper block', wrapper);
-        //console.log('MTeditor menuWrapper block', menuWrapper);
-        //console.log('MTeditor menuButton block', menuButton);
-        //console.log('MTeditor content block', content);
-
-        /*
-         * Plugin options
-         */
-        options = $.extend({
-            debug : 0, //set to 1 to expose the values received by the flash file
-            uplBgColor: "FFFFDF",
-            uplBarColor: "FFDD00",
-            allowedExt: "*.avi; *.jpg; *.jpeg; *.png",
-            validFileMessage: 'Thanks, now hit Upload!',
-            endMessage: 'and don\'t you come back ;)',
-            activeMode: 'html',
-            menuDivider: '<span class="divider"></span>',
-            resizable: false
-        }, options);
-        //console.log('Plugin MTeditor is started with options', options);
-
-        /*
-         * Plugin functions
-         */
-        var draw = function(block) {
-            //console.log('\nRe-draw block', block);
-
-            var $block = $(block),
-                blockId = $block.attr('id'),
-                divider = options.menuDivider
-                text = $block.html();
-            //console.log('blockId', blockId);
-            //console.log('Menu buttons', fnMenu);
-            //console.log('Menu divider', divider);
-            //console.log('Editable text', text);
-
-            // Make the MTeditor-block
-            wrapper = $(wrapper).attr('id', blockId);
-            //console.log('wrapper', wrapper);
-            if (options.resizable === true) {
-                wrapper.addClass('resizable').resizable();
-            }
-
-            // Build the MTeditor menu
-            var i = 0,
-                menu = $(menuWrapper);
-            $.each(fnMenu, function(index, buttons) {
-                //console.log(index, buttons);
-                // Create group
-                if (index !== 'editorMode') {
-                    group = $(menuGroup).attr('id', index);
-                    $.each(buttons, function(key, value) {
-                        //console.log('Button', key, value);
-                        // Create buttons
-                        if (key !== 'headers') {
-                            button = $(menuButton).html(value).attr('id', key).attr('title', value);
-                            //console.log('Button ready', button);
-                            // Insert button into the group
-                            group.append(button);
-                        // Create heders select
-                        } else {
-                            select = $(menuSel).attr('name', key);
-                            //console.log('heders select', select);
-                            $.each(value, function(opt, val) {
-                                //console.log('Option', opt, val);
-                                button = $(menuSelOption).attr('id', opt).val(opt).html(val);
-                                // Insert option into the select
-                                select.append(button);
-                            });
-                            // Insert select into the group
-                            group.append(select);
-                        }
-                    });
-                    //console.log('Group ready', group);
-                // editorMode group
-                } else {
-                    group = $(menuGroup).attr('id', index);
-                    select = $(menuSel).attr('name', index);
-                    // Create select
-                    $.each(buttons, function(key, value) {
-                        //console.log('Button', key, value);
-                        button = $(menuSelOption).attr('id', key).val(key).html(value);
-                        //console.log('Button ready', button);
-                        // Insert option into the select
-                        select.append(button);
-                        // Make selection
-                        if (options.activeMode == key) {
-                            //button.attr('selected', true);
-                            select.val(key);
-                        }
-                        // Insert select into the group
-                        group.append(select);
-                    });
-                }
-                //console.log(group);
-                // Insert group into the menu
-                if (i > 0) {
-                    menu.append(divider);
-                }
-                menu.append(group);
-                i++;
-            });
-            //console.log('menu', menu);
-
-            // Add the menu and content-block into MTeditor
-            wrapper.append(menu).append($(content).attr('contentEditable', true).html(text));
-
-            // Hide TEXTAREA and draw MTeditor-block
-            $block.hide().before(wrapper);
-
-            return wrapper;
-        }
-
-        /*
-         * Plugin proceed
-         */
-        return this.each(function() {
-            //console.log('Founded block', this);
-            var $this = $(this);
-            //console.log('$this', $this);
-            block = draw(this);
-            blockId = block.attr('id');
-            text = block.find('.content').html();
-            //console.log('block ' + blockId, block);
-            //console.log('text', text);
-
-            // MTeditor menu items
-            buttons = block.find('.button');
-            selectMode = block.find('select[name="editorMode"]');
-            selectText = block.find('select[name="headers"]');
-            //console.log('buttons', buttons);
-            //console.log('selectMode', selectMode);
-            //console.log('selectText', selectText);
-
-            // Catch the clicks on buttons
-            buttons.click(function() {
-                //console.log('Button click detected', this);
-                method = $(this).attr('id');
-                //console.log('Calling method ' + method);
-                editor = $(this).closest('.mteditor');
-                editorId = editor.attr('id');
-                //console.log('Parent editor-block is '+ editorId, editor);
-            });
-
-            // Catch the changing selectMode
-            selectMode.change(function() {
-                //console.log('selectMode change detected', this);
-                method = $(this).val();
-                //console.log('Change editor mode to: ' + method);
-                editor = $(this).closest('.mteditor');
-                editorId = editor.attr('id');
-                //console.log('Parent editor-block is '+ editorId, editor);
-            });
-
-            // Catch the changing selectText
-            selectText.change(function() {
-                //console.log('selectText change detected', this);
-                method = $(this).val();
-                //console.log('Change text to: ' + method);
-                editor = $(this).closest('.mteditor');
-                editorId = editor.attr('id');
-                //console.log('Parent editor-block is '+ editorId, editor);
-            });
-        });
-    };
-
-})(jQuery);
