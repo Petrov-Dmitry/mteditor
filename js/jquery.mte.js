@@ -1,3 +1,14 @@
+/**
+ * TODO:
+ * багфикс
+ * доработка частично-реализованного функционала
+ * реализовать вставку и изменение таблиц с поддержкой:
+ *  thead, tbody, tfoot, th, td, ориентации заголовков (в строку или в столбец)
+ *  добавления нескольких столбцов или строк в конец или после позиции курсора
+ * следить за валидностью и форматированием генерируемого HTML
+ */
+
+// Инициализация плагина
 function mte(textarea, options) {
     "use strict";
 
@@ -88,26 +99,28 @@ function mte(textarea, options) {
 }
 
 mte.prototype = {
-    toolbarButtons: [
-        'bold',
-        'italic',
-        'strike',
-        'underline',
-        'ol',
-        'ul',
-        'l_up',
-        'l_down',
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-        'image',
-        'link',
+    toolbarButtons: ['bold','italic','strike','underline','divider',
+        'ol','ul','l_up','l_down','divider',
+        /**
+         * TODO: форматы текста перенести в SELECT
+         * добавить обработку разделителей divider
+         * встроить список форматов текста
+            'formats':[
+                'h1','h2','h3','h4','h5','h6','divider',
+                'p'
+            ],'divider',
+         * сделать соответствующие изменения в структуре translations
+         */
+        'h1','h2','h3','h4','h5','h6','divider','p','divider',
+        'image','link','divider',
+        // look the clearFormat function description
         'removeformat'
     ],
 
+    /**
+     * TODO: см комментарий к toolbarButtons
+     * добавить в плагин соответствующие методы
+     */
     plugins: {
         'bold': function () {
             document.execCommand('Bold', false, true);
@@ -250,6 +263,10 @@ mte.prototype = {
             return false;
         },
 
+        /**
+         * TODO:
+         * функции заголовков добавляют, но не удаляют заголовки
+         */
         'h1': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h1>');
@@ -293,6 +310,20 @@ mte.prototype = {
             return false;
         },
 
+        /**
+         * TODO:
+         * починить отображение ссылки (пути к файлу) на картинку в форме
+         *
+         * расширить форму картинки полями: alt, title, width, height,
+         *  position - выравнивание: слева, справа, по центру,
+         *  textWrap - обтекание текстом или есть или нет,
+         *  showorigin - показывать или нет всплывашку с оригиналом
+         * поле alt может показываться как подпись к картинке, title как заголовок подписи
+         * остальные поля, если не заданы, должны использовать умолчания из настроек
+         *
+         * реализовать отправку записанных данных картинки AJAX-ом
+         * получить JSON-ответ с сохраненными данными и вставить картинку в редактируемый текст
+         */
         'image': function() {
             this.showModal('image-form');
             var _this = this;
@@ -305,6 +336,11 @@ mte.prototype = {
             });
         },
 
+        /**
+         * TODO:
+         * реализовать не только добавление/редактирование ссылок, но и их удаление
+         * расширить форму ссылки полем title и выбором target
+         */
         'link': function() {
             this.showModal('link-form');
             var text = this.getSelectedText();
@@ -322,9 +358,29 @@ mte.prototype = {
             });
         },
 
-        'removeformat': function () {
+        /**
+         * BUG TODO: переименовать функцию в clearFormat и использовать для очистки форматирования не только пользователем, но и внутри компонента
+         *
+         * все теги, кроме описанных кнопками меню toolbarButtons должны удаляться
+         * должна удалять все атрибуты из оставшихся в тексте тегов
+         * должна форматировать код переносами после оставшихся в тексте закрывающих и непарных тегов
+         * другие переносы должна обрабатывать: одиночный - заменить на br, более - на p
+         * все спец-символы (кавычки, слеши, угловые скобки и т.п., но не угловые скобки тегов) должны быть заменены на HTML-сущности
+         *
+         * некорректно отрабатывает нажатие на Enter - сразу ставит p
+         *  после первого нажатия ставить br
+         *  после второго - менять br на p
+         *  последующие - игнорировать
+         *
+         * оборачивает текст, следующий за br в <p>, в результате имеем <p><br><p></p></p>
+         * добавляет br перед закрывающими тегами (например в заголовках или элементах списка)
+         */
+        'clearFormat': function () {
+            console.log('Ooops, clearFormat called...', this);
+            /**/
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<p>');
+            /**/
             this.$div.focus();
             return false;
         }
@@ -389,6 +445,10 @@ mte.prototype = {
             </table>'
     },
 
+    /**
+     * TODO: см todo-комментарий к массиву toolbarButtons
+     * сделать соответствующие изменения структуры
+     */
     translations: {
         'en':{
             'toolbar.bold': 'Bold',
@@ -456,6 +516,10 @@ mte.prototype = {
         }
     },
 
+    /**
+     * TODO: см todo-комментарий к массиву toolbarButtons
+     * учесть соответствующие изменения структуры в работе функции
+     */
     translate: function (name) {
         return this.translations[this.language][name] ||  this.translations[this.default_language][name]
     },
@@ -498,14 +562,16 @@ mte.prototype = {
         document.execCommand('InsertHtml', false, html);
     },
 
+    /**
+     * BUG TODO: look the clearFormat function description
+     */
     htmlMode: function () {
         if (this.mode === 'html') {
             return;
         }
-        console.log(this);
-        if (this.options.mode !== 'html') {
+        if (this.options.mode !== 'html')
             this.$textarea.val(this.$div.html());
-        }
+
         this.$textarea.show();
         this.$div.hide();
         $('.mte_switch_html', this.$wrapper).hide();
@@ -515,6 +581,9 @@ mte.prototype = {
         this.mode = 'html';
     },
 
+    /**
+     * BUG TODO: look the clearFormat function description
+     */
     visualMode: function () {
         if (this.mode === 'visual') {
             return;
@@ -588,6 +657,10 @@ mte.prototype = {
         }
     },
 
+    /**
+     * BUG TODO:
+     * функции getSelectedHtml, saveSelection и restoreSelection неправильно работают с вложенными блоками в списках
+     */
     getSelectedHtml: function() {
         var selection = window.getSelection();
         //console.log('This is getSelectedHtml()', selection);
@@ -616,6 +689,9 @@ mte.prototype = {
         }
     },
 
+    /**
+     * BUG TODO: см. комментарий к функции getSelectedHtml
+     */
     saveSelection: function () {
         //http://stackoverflow.com/questions/1181700/set-cursor-position-on-contenteditable-div
         if (window.getSelection) {
@@ -627,6 +703,9 @@ mte.prototype = {
         }
     },
 
+    /**
+     * BUG TODO: см. комментарий к функции getSelectedHtml
+     */
     restoreSelection: function () {
         //http://stackoverflow.com/questions/1181700/set-cursor-position-on-contenteditable-div
         this.$div.focus();
