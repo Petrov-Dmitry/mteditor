@@ -55,38 +55,96 @@ function mte(textarea, options) {
     this.$div.bind('keyup click', function (e) {
         var $nodes = _this.getSelectedHtml();
         console.log('\nCatch selection-event on '+ $nodes.length +' elements');
-        // Если элементов множество
-        if ($nodes.length > 1) {
-            console.log('элементов множество', $nodes);
-            var $node = $(_this.getSelectionStartNode());
-        // Если элемет один
-        } else {
-            console.log('элемет один', $nodes);
-        }
 
-
+        var menuButtons = _this.getToolbar().find('.mte_toolbar_button');
+        var textFormatOptions = _this.getToolbar().find('.mte_toolbar_select[name="textFormat"]');
 
         /**
          * TODO:
          * отработать события на элементах, в том числе на списке выделенных элементов
          */
-        // Отработка событий при выборе тех или иных элементов
+        // Если элементов множество
+        if ($nodes.length > 1) {
+            console.log('элементов множество', $nodes);
+            //var $node = $(_this.getSelectionStartNode());
+        // Если элемет один
+        } else {
+            var $node = $($nodes[0]);
+            var tag = $nodes[0].tagName.toLowerCase();
+            var button = _this.getButton(tag);
+            /**
+             * Отработка событий при выборе тех или иных элементов
+             */
+            switch (tag) {
+                case 'b':
+                    menuButtons.removeClass('active');
+                    button.addClass('active');
+                    textFormatOptions.val('p');
+                    break;
+                case 'i':
+                    menuButtons.removeClass('active');
+                    button.addClass('active');
+                    textFormatOptions.val('p');
+                    break;
+                case 'strike':
+                    menuButtons.removeClass('active');
+                    button.addClass('active');
+                    textFormatOptions.val('p');
+                    break;
+                case 'u':
+                    menuButtons.removeClass('active');
+                    button.addClass('active');
+                    textFormatOptions.val('p');
+                    break;
+                // Ссылка
+                case 'a':
+                    menuButtons.removeClass('active');
+                    button.addClass('active');
+                    textFormatOptions.val('p');
+                    /*
+                    _this.showModal('link-form');
+                    $('.mte_modal [name=name]').val($node.text());
+                    $('.mte_modal [name=url]').val($node.attr('href'));
 
-        /*
-        if ($node.is('a')) {
-            _this.showModal('link-form');
-            $('.mte_modal [name=name]').val($node.text());
-            $('.mte_modal [name=url]').val($node.attr('href'));
-
-            $('.mte_modal_submit').click(function () {
-                var name = $('.mte_modal [name=name]').val();
-                var url = $('.mte_modal [name=url]').val();
-                $node.text(name);
-                $node.attr('href', url);
-                _this.closeModal();
-            });
+                    $('.mte_modal_submit').click(function () {
+                        var name = $('.mte_modal [name=name]').val();
+                        var url = $('.mte_modal [name=url]').val();
+                        $node.text(name);
+                        $node.attr('href', url);
+                        _this.closeModal();
+                    });
+                    */
+                    break;
+                case 'p':
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break
+                case 'h1':
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+                case 'h2':
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+                case 'h3':
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+                case 'h4':
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+                case 'h5':
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+                case 'h6':
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+            }
         }
-        */
     });
 
     // Making menu-toolbar
@@ -127,9 +185,9 @@ mte.prototype = {
     ],
     toolbarButtons: [
         'textFormats','divider',
-        'bold','italic','strike','underline','divider',
+        'b','i','strike','u','divider',
         'ol','ul','l_up','l_down','divider',
-        'image','link','divider',
+        'image','a','divider',
         // look the clearFormat function description
         'removeformat'
     ],
@@ -634,10 +692,12 @@ mte.prototype = {
         pValue = this.$textarea.val();
 
         // Регулярки
-        exprStart = /^\<(p|h\d{1}|div class=".*image.*)\>/igm;          // наличие тега в начале строки
-        exprEnd = /\<\/(p|h\d{1}|div)\>/igm;                            // наличие тега в конце строки
+        exprStart = /^\<(p|h\d{1}|div.*|ul|ol|li)\>/igm;          // наличие тега в начале строки
+        exprEnd = /\<.*\>$/igm;                            // наличие тега в конце строки
         exprBr = /(?:\<br\>)*\n{1}|(?:\<br\>)|(?:\<br\s\/\>)/igm;       // переносы
-        exprPar = /(?:\<\/p\>\n*\<br\>\n*)|(?:\<br\>\n*\<br\>\n*)/igm;  // параграфы
+
+
+        exprPar = /(\<\/(p|h\d{1}|div|br)\>\n*\<br\>\n*)/igm;  // параграфы
 
         // Найти одиночные переносы - заменить на br с переносом
         parts = pValue.split(exprBr);

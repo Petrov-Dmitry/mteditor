@@ -29,6 +29,10 @@
     border-radius: 3px;
     margin: 2px 1px;
 }
+.mte_toolbar_button.active{
+    background-color: #ccc;
+    border-color: #666;
+}
 .mte_toolbar_select{
     float: left;
     height: 26px;
@@ -43,10 +47,10 @@
 }
 
 /* English toolbar icons, by default */
-.mte_toolbar_button__bold{background-image: url(img/toolbar/bold.png) }
-.mte_toolbar_button__italic{background-image: url(img/toolbar/italic.png) }
+.mte_toolbar_button__b{background-image: url(img/toolbar/bold.png) }
+.mte_toolbar_button__i{background-image: url(img/toolbar/italic.png) }
 .mte_toolbar_button__strike{background-image: url(img/toolbar/strike.png) }
-.mte_toolbar_button__underline{background-image: url(img/toolbar/underline.png) }
+.mte_toolbar_button__u{background-image: url(img/toolbar/underline.png) }
 .mte_toolbar_button__ol{background-image: url(img/toolbar/ol.png) }
 .mte_toolbar_button__ul{background-image: url(img/toolbar/ul.png) }
 .mte_toolbar_button__l_up{background-image: url(img/toolbar/l_up.png) }
@@ -58,7 +62,7 @@
 .mte_toolbar_button__h5{background-image: url(img/toolbar/h5.png) }
 .mte_toolbar_button__h6{background-image: url(img/toolbar/h6.png) }
 .mte_toolbar_button__image{background-image: url(img/toolbar/image.png) }
-.mte_toolbar_button__link{background-image: url(img/toolbar/link.png) }
+.mte_toolbar_button__a{background-image: url(img/toolbar/link.png) }
 .mte_toolbar_button__video{background-image: url(img/toolbar/video.png) }
 .mte_toolbar_button__undo{background-image: url(img/toolbar/undo.png) }
 .mte_toolbar_button__redo{background-image: url(img/toolbar/redo.png) }
@@ -66,10 +70,10 @@
 .mte_toolbar_button__source{background-image: url(img/toolbar/source.png) }
 
 /* Russian toolbar icons */
-.mte-lang_ru .mte_toolbar_button__bold {background-image: url(img/toolbar/ru/bold.png) }
-.mte-lang_ru .mte_toolbar_button__italic{background-image: url(img/toolbar/ru/italic.png) }
+.mte-lang_ru .mte_toolbar_button__b {background-image: url(img/toolbar/ru/bold.png) }
+.mte-lang_ru .mte_toolbar_button__i{background-image: url(img/toolbar/ru/italic.png) }
 .mte-lang_ru .mte_toolbar_button__strike{background-image: url(img/toolbar/ru/strike.png) }
-.mte-lang_ru .mte_toolbar_button__underline{background-image: url(img/toolbar/ru/underline.png) }
+.mte-lang_ru .mte_toolbar_button__u{background-image: url(img/toolbar/ru/underline.png) }
 .mte-lang_ru .mte_toolbar_button__h1{background-image: url(img/toolbar/ru/h1.png) }
 .mte-lang_ru .mte_toolbar_button__h2{background-image: url(img/toolbar/ru/h2.png) }
 .mte-lang_ru .mte_toolbar_button__h3{background-image: url(img/toolbar/ru/h3.png) }
