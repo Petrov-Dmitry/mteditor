@@ -53,8 +53,26 @@ function mte(textarea, options) {
 
     // Bind the reaction on events
     this.$div.bind('keyup click', function (e) {
-        var $node = $(_this.getSelectionStartNode());
-        // Proceed the links
+        var $nodes = _this.getSelectedHtml();
+        console.log('\nCatch selection-event on '+ $nodes.length +' elements');
+        // Если элементов множество
+        if ($nodes.length > 1) {
+            console.log('элементов множество', $nodes);
+            var $node = $(_this.getSelectionStartNode());
+        // Если элемет один
+        } else {
+            console.log('элемет один', $nodes);
+        }
+
+
+
+        /**
+         * TODO:
+         * отработать события на элементах, в том числе на списке выделенных элементов
+         */
+        // Отработка событий при выборе тех или иных элементов
+
+        /*
         if ($node.is('a')) {
             _this.showModal('link-form');
             $('.mte_modal [name=name]').val($node.text());
@@ -68,6 +86,7 @@ function mte(textarea, options) {
                 _this.closeModal();
             });
         }
+        */
     });
 
     // Making menu-toolbar
@@ -370,10 +389,10 @@ mte.prototype = {
          */
         'clearFormat': function () {
             console.log('Ooops, clearFormat called...', this);
-            /**/
+            /*
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<p>');
-            /**/
+            */
             this.$div.focus();
             return false;
         }
@@ -540,7 +559,6 @@ mte.prototype = {
     },
 
     drawToolbar: function () {
-        console.log('drawToolbar called');
         for (var i = 0; i < this.toolbarButtons.length; ++i){
             var name = this.toolbarButtons[i];
             switch (name) {
@@ -571,7 +589,6 @@ mte.prototype = {
     },
 
     addTextFormats: function (options) {
-        console.log('addTextFormats called',options);
         var select = $('<select name="textFormat" class="mte_toolbar_select"></select>');
         for (var i = 0; i < options.length; ++i){
             var name = options[i];
@@ -597,8 +614,9 @@ mte.prototype = {
         if (this.mode === 'html') {
             return;
         }
-        if (this.options.mode !== 'html')
+        if (this.options.mode !== 'html') {
             this.$textarea.val(this.$div.html());
+        }
 
         this.$textarea.show();
         this.$div.hide();
@@ -609,14 +627,49 @@ mte.prototype = {
         this.mode = 'html';
     },
 
-    /**
-     * BUG TODO: look the clearFormat function description
-     */
     visualMode: function () {
         if (this.mode === 'visual') {
             return;
         }
-        this.$div.html(this.$textarea.val());
+        pValue = this.$textarea.val();
+
+        // Регулярки
+        exprStart = /^\<(p|h\d{1}|div class=".*image.*)\>/igm;          // наличие тега в начале строки
+        exprEnd = /\<\/(p|h\d{1}|div)\>/igm;                            // наличие тега в конце строки
+        exprBr = /(?:\<br\>)*\n{1}|(?:\<br\>)|(?:\<br\s\/\>)/igm;       // переносы
+        exprPar = /(?:\<\/p\>\n*\<br\>\n*)|(?:\<br\>\n*\<br\>\n*)/igm;  // параграфы
+
+        // Найти одиночные переносы - заменить на br с переносом
+        parts = pValue.split(exprBr);
+        pValue = '';
+        for (var i = 0; i < parts.length; ++i) {
+            // Если в конце текста нет одного из закрывающих тегов p, Hn или div.image
+            if (parts[i].search(exprEnd) < 0) {
+                parts[i] = parts[i] +'<br>\n';
+            } else {
+                parts[i] = parts[i] +'\n';
+            }
+            pValue = pValue + parts[i];
+        }
+
+        // Найти параграфы - заменить на p с 2-мя переносами
+        parts = pValue.split(exprPar);
+        pValue = '';
+        for (var i = 0; i < parts.length; ++i) {
+            if (parts[i].length > 0) {
+                // Если в начале текста нет одного из тегов p, Hn или div.image
+                if (parts[i].search(exprStart)) {
+                    parts[i] = '<p>'+ parts[i];
+                }
+                // Если в конце текста нет одного из закрывающих тегов p, Hn или div.image
+                if (parts[i].search(exprEnd)) {
+                    parts[i] = parts[i] +'</p>\n';
+                }
+                pValue = pValue + parts[i];
+            }
+        }
+
+        this.$div.html(pValue);
         this.$textarea.hide();
         this.$div.show();
         $('.mte_switch_visual', this.$wrapper).hide();
@@ -691,10 +744,8 @@ mte.prototype = {
      */
     getSelectedHtml: function() {
         var selection = window.getSelection();
-        //console.log('This is getSelectedHtml()', selection);
         if( selection ) {
             var range = (document.all ? selection.createRange() : selection.getRangeAt(selection.rangeCount - 1).cloneRange());
-            //console.log('range', range);
 
             // Получим первый и последний выделенные элементы
             startElement = $(range.startContainer).parent();
