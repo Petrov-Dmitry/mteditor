@@ -8,12 +8,13 @@
  * следить за валидностью и форматированием генерируемого HTML
  */
 
-// Инициализация плагина
 function mte(textarea, options) {
     "use strict";
 
     this.default_language = 'ru';
     this.default_mode = 'visual';
+    this.default_menuDivider = '<span class="divider"></span>';
+
     var _this = this;
     this.$textarea = $(textarea);
 
@@ -28,6 +29,7 @@ function mte(textarea, options) {
     this.toolbarButtons = this.options.toolbarButtons || this.toolbarButtons;
     this.language = this.options.language || this.default_language;
     this.options.mode = this.options.mode || this.default_mode;
+    this.options.menuDivider = this.options.menuDivider || this.default_menuDivider;
 
     // Wrap the editor
     this.$textarea.wrap('<div class="mte_wrapper mte-lang_' + this.language + '"></div>');
@@ -73,11 +75,7 @@ function mte(textarea, options) {
     this.$div.after(this.getTemplate('switch'));
 
     // Add buttons in the toolbar
-    for (var i=0; i<this.toolbarButtons.length; ++i){
-        var name = this.toolbarButtons[i];
-        this.addToolbarButton(name);
-        this.getButton(name).click( $.proxy(this.plugins[name], this) );
-    }
+    this.drawToolbar();
 
     this.$div.blur(function () {
         _this.saveSelection();
@@ -99,19 +97,19 @@ function mte(textarea, options) {
 }
 
 mte.prototype = {
-    toolbarButtons: ['bold','italic','strike','underline','divider',
+    /**
+     * TODO: форматы текста перенести в SELECT
+     * добавить обработку разделителей divider
+     * сделать соответствующие изменения в структуре translations и функции drawToolbar
+     */
+    textFormats: [
+        'h1','h2','h3','h4','h5','h6','divider',
+        'p'
+    ],
+    toolbarButtons: [
+        'textFormats','divider',
+        'bold','italic','strike','underline','divider',
         'ol','ul','l_up','l_down','divider',
-        /**
-         * TODO: форматы текста перенести в SELECT
-         * добавить обработку разделителей divider
-         * встроить список форматов текста
-            'formats':[
-                'h1','h2','h3','h4','h5','h6','divider',
-                'p'
-            ],'divider',
-         * сделать соответствующие изменения в структуре translations
-         */
-        'h1','h2','h3','h4','h5','h6','divider','p','divider',
         'image','link','divider',
         // look the clearFormat function description
         'removeformat'
@@ -273,7 +271,6 @@ mte.prototype = {
             this.$div.focus();
             return false;
         },
-
         'h2': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h2>');
@@ -281,28 +278,24 @@ mte.prototype = {
             return false;
 
         },
-
         'h3': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h3>');
             this.$div.focus();
             return false;
         },
-
         'h4': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h4>');
             this.$div.focus();
             return false;
         },
-
         'h5': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h5>');
             this.$div.focus();
             return false;
         },
-
         'h6': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h6>');
@@ -445,10 +438,6 @@ mte.prototype = {
             </table>'
     },
 
-    /**
-     * TODO: см todo-комментарий к массиву toolbarButtons
-     * сделать соответствующие изменения структуры
-     */
     translations: {
         'en':{
             'toolbar.bold': 'Bold',
@@ -465,6 +454,7 @@ mte.prototype = {
             'toolbar.h4': 'Headline 4',
             'toolbar.h5': 'Headline 5',
             'toolbar.h6': 'Headline 6',
+            'toolbar.p': 'Paragraph',
             'toolbar.image': 'Image',
             'toolbar.link': 'Link',
             'toolbar.removeformat': 'Remove Format',
@@ -497,6 +487,7 @@ mte.prototype = {
             'toolbar.h4': 'Заголовок 4',
             'toolbar.h5': 'Заголовок 5',
             'toolbar.h6': 'Заголовок 6',
+            'toolbar.p': 'Параграф',
             'toolbar.image': 'Изображение',
             'toolbar.link': 'Ссылка',
             'toolbar.removeformat': 'Очистить форматирование',
@@ -516,10 +507,6 @@ mte.prototype = {
         }
     },
 
-    /**
-     * TODO: см todo-комментарий к массиву toolbarButtons
-     * учесть соответствующие изменения структуры в работе функции
-     */
     translate: function (name) {
         return this.translations[this.language][name] ||  this.translations[this.default_language][name]
     },
@@ -540,9 +527,38 @@ mte.prototype = {
         return html;
     },
 
+    /**
+     * Тулбар
+     */
     addPlugin: function(name, func){
         this.toolbarButtons.push(name);
         this.plugins[name] = func;
+    },
+
+    getToolbar: function () {
+        return $('.mte_toolbar', this.$wrapper);
+    },
+
+    drawToolbar: function () {
+        console.log('drawToolbar called');
+        for (var i = 0; i < this.toolbarButtons.length; ++i){
+            var name = this.toolbarButtons[i];
+            switch (name) {
+                // Вставляем разделитель
+                case 'divider':
+                    this.addToolbarDivider();
+                    break;
+                // Вставляем селект
+                case 'textFormats':
+                    var options = this.textFormats;
+                    this.addTextFormats(options);
+                    break;
+                // Вставляем кнопку
+                default:
+                    this.addToolbarButton(name);
+                    this.getButton(name).click( $.proxy(this.plugins[name], this) );
+            }
+        }
     },
 
     addToolbarButton: function (name) {
@@ -550,8 +566,20 @@ mte.prototype = {
         this.getToolbar().append(btn);
     },
 
-    getToolbar: function () {
-        return $('.mte_toolbar', this.$wrapper);
+    addToolbarDivider: function () {
+        this.getToolbar().append(this.options.menuDivider);
+    },
+
+    addTextFormats: function (options) {
+        console.log('addTextFormats called',options);
+        var select = $('<select name="textFormat" class="mte_toolbar_select"></select>');
+        for (var i = 0; i < options.length; ++i){
+            var name = options[i];
+            var option = name === 'divider' ? '<option disabled class="divider"></option>'
+                : $('<option value="'+ name +'">'+ this.translate('toolbar.'+ name) +'</option>');
+            select.append(option);
+        }
+        this.getToolbar().append(select);
     },
 
     getButton: function (name) {

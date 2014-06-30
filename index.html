@@ -1,4 +1,3 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html lang="ru">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
@@ -8,11 +7,22 @@
     <script type="text/javascript" src="js/jquery.mte.js"></script>
     <script type="text/javascript">
         $(function(){
-            // Дефолтные настройки плагина
+            // Настройки плагина
             $('[data-toggle="editor"]#content').mte();
-            // Настройки кнопок меню через опции плагина
-            //$('[data-toggle="editor"]#content2').mte({toolbarButtons:['bold', 'italic', 'strike', 'underline']});
-            //$('[data-toggle="editor"]#content3').mte({language:'en', mode:'html'});
+            $('[data-toggle="editor"]#content2').mte({
+                toolbarButtons:[
+                    'textFormats','divider',
+                    'bold','italic','strike','underline','divider',
+                    'link','divider',
+                    'removeformat'
+                ],
+                menuDivider:'<span class="optionset divider"></span>',
+                menuSelectDivider:'==========='
+            });
+            $('[data-toggle="editor"]#content3').mte({
+                language:'en',
+                mode:'html'
+            });
         });
     </script>
 </head>
@@ -24,7 +34,7 @@
 
 <textarea id="content" class="form-editor form-control" data-target="#content" data-toggle="editor" cols="100" rows="20" name="content">
 <h1>Каждый веб-разработчик знает</h1>
-<p><img src="/mteditor/image.png" title="Пример подписи под картинкой" align="left" class="clear" width=200 height=150>
+<p><div class="image left"><img src="image.png" title="Название картинки" alt="Пример подписи под картинкой" width="200" height="150"></div>
 <b>Каждый</b> <i>веб-<b>разработчик</b></i> <u>знает</u>, что такое текст-«рыба».<br>Текст этот, <strike>несмотря на название,</strike> не имеет никакого отношения к обитателям водоемов.<br>
 Используется он веб-дизайнерами для вставки на интернет-страницы и демонстрации внешнего вида контента, просмотра шрифтов, абзацев, отступов и т.д.</p>
 <h2>Заголовок 2</h2>
@@ -40,10 +50,12 @@
 Сегодня существует несколько вариантов Lorem ipsum, кроме того, есть специальные генераторы, создающие собственные варианты текста на основе оригинального трактата, благодаря чему появляется возможность получить более длинный неповторяющийся набор слов.
 </textarea>
 
-<!--h2>Настройки кнопок меню</h2>
-<textarea id="content2" class="form-editor form-control" data-target="#content2" data-toggle="editor" cols="70" rows="20" name="content2"></textarea>
+<h2>Настройки кнопок меню</h2>
+<textarea id="content2" class="form-editor form-control" data-target="#content2" data-toggle="editor" cols="100" rows="8" name="content2"><p><b>Каждый</b> <i>веб-<b>разработчик</b></i> <u>знает</u>, что такое текст-«рыба».<br>Текст этот, <strike>несмотря на название,</strike> не имеет никакого отношения к обитателям водоемов.<br>
+Используется он веб-дизайнерами для вставки на интернет-страницы и демонстрации внешнего вида контента, просмотра шрифтов, абзацев, отступов и т.д.</p></textarea>
 <h2>Настройки языка и режима ввода</h2>
-<textarea id="content3" class="form-editor form-control" data-target="#content2" data-toggle="editor" cols="70" rows="20" name="content2"></textarea-->
+<textarea id="content3" class="form-editor form-control" data-target="#content2" data-toggle="editor" cols="100" rows="8" name="content2"><p><b>Каждый</b> <i>веб-<b>разработчик</b></i> <u>знает</u>, что такое текст-«рыба».<br>Текст этот, <strike>несмотря на название,</strike> не имеет никакого отношения к обитателям водоемов.<br>
+Используется он веб-дизайнерами для вставки на интернет-страницы и демонстрации внешнего вида контента, просмотра шрифтов, абзацев, отступов и т.д.</p></textarea>
 
 </body>
 </html>
