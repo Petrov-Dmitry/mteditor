@@ -143,6 +143,13 @@ function mte(textarea, options) {
                     menuButtons.removeClass('active');
                     textFormatOptions.val(tag);
                     break;
+                case 'li':
+                    var parentTag = $node.parent()[0].tagName.toLowerCase();
+                    button = _this.getButton(parentTag);
+                    menuButtons.removeClass('active');
+                    button.addClass('active');
+                    textFormatOptions.val('divider');
+                    break;
             }
         }
     });
@@ -197,38 +204,66 @@ mte.prototype = {
      * добавить в плагин соответствующие методы
      */
     plugins: {
-        'bold': function () {
+        'b': function () {
+            this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('Bold', false, true);
             this.$div.focus();
             return false;
         },
 
-        'italic': function () {
+        'i': function () {
+            this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('Italic', false, true);
             this.$div.focus();
             return false;
         },
 
         'strike': function () {
+            this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('StrikeThrough', false, true);
             this.$div.focus();
             return false;
         },
 
-        'underline': function () {
+        'u': function () {
+            this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('Underline', false, true);
             this.$div.focus();
             return false;
         },
 
+        /**
+         * TODO: для действий ol, ul
+         * Выбирать либо элементы li, либо p - смешанный набор игнорировать
+         * Элементы li, вырезать из списка.
+         *  Если выбраны элементы в начале списка - вставить выбранные перед списком в виде абзацев
+         *  Если выбраны элементы в конце списка - вставить выбранные после списка в виде абзацев
+         *  Если выбраны элементы из середины списка - разбить список на 2, между ними вставить выбранные в виде абзацев
+         * Элементы p
+         *  следующие перед списком - вырезать и записать как li в начало списка
+         *  следующие после списка - вырезать и записать как li в конец списка
+         *  следующие вдали от списков - заменить новым списком (вырезать и записать как li в новый список).
+         */
         'ol': function () {
+            console.log('OL');
+            selectedElements = this.getSelectedHtml();
+            console.log('selectedElements', selectedElements);
+            /*
+            this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('InsertOrderedList', false, true);
+            */
             this.$div.focus();
             return false;
         },
 
         'ul': function () {
+            console.log('UL');
+            selectedElements = this.getSelectedHtml();
+            console.log('selectedElements', selectedElements);
+            /*
+            this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('InsertUnorderedList', false, true);
+            */
             this.$div.focus();
             return false;
         },
@@ -650,7 +685,7 @@ mte.prototype = {
         var select = $('<select name="textFormat" class="mte_toolbar_select"></select>');
         for (var i = 0; i < options.length; ++i){
             var name = options[i];
-            var option = name === 'divider' ? '<option disabled class="divider"></option>'
+            var option = name === 'divider' ? '<option disabled class="divider" value="divider">------------------</option>'
                 : $('<option value="'+ name +'">'+ this.translate('toolbar.'+ name) +'</option>');
             select.append(option);
         }
@@ -798,23 +833,6 @@ mte.prototype = {
         $('.mte_modal_background').remove();
     },
 
-    getSelectionStartNode: function () {
-        //http://stackoverflow.com/questions/2459180/how-to-edit-a-link-within-a-contenteditable-div
-        var node, selection;
-        if (window.getSelection) { // FF3.6, Safari4, Chrome5 (DOM Standards)
-            selection = window.getSelection();
-            node = selection.anchorNode;
-        }
-        if (!node && document.selection) { // IE
-            selection = document.selection;
-            var range = selection.getRangeAt ? selection.getRangeAt(0) : selection.createRange();
-            node = (range.commonAncestorContainer || range.parentElement) ? range.parentElement() : range.item(0);
-        }
-        if (node) {
-            return (node.nodeName === "#text" ? node.parentNode : node);
-        }
-    },
-
     getSelectedText: function () {
         // http://stackoverflow.com/questions/5669448/get-selected-texts-html-in-div
         if (typeof window.getSelection !== "undefined") {
@@ -854,6 +872,26 @@ mte.prototype = {
                 listElements = $.merge(listElements, endElement.get());
             }
             return listElements;
+        }
+    },
+
+    /**
+     * BUG TODO: см. комментарий к функции getSelectedHtml
+     */
+    getSelectionStartNode: function () {
+        //http://stackoverflow.com/questions/2459180/how-to-edit-a-link-within-a-contenteditable-div
+        var node, selection;
+        if (window.getSelection) { // FF3.6, Safari4, Chrome5 (DOM Standards)
+            selection = window.getSelection();
+            node = selection.anchorNode;
+        }
+        if (!node && document.selection) { // IE
+            selection = document.selection;
+            var range = selection.getRangeAt ? selection.getRangeAt(0) : selection.createRange();
+            node = (range.commonAncestorContainer || range.parentElement) ? range.parentElement() : range.item(0);
+        }
+        if (node) {
+            return (node.nodeName === "#text" ? node.parentNode : node);
         }
     },
 
