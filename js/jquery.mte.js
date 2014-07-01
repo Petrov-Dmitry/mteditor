@@ -210,6 +210,7 @@ mte.prototype = {
      */
     plugins: {
         'b': function () {
+            console.log('Bold');
             this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('Bold', false, true);
             this.$div.focus();
@@ -378,45 +379,50 @@ mte.prototype = {
             return false;
         },
 
-        /**
-         * TODO:
-         * функции заголовков добавляют, но не удаляют заголовки
+        /*
+         * Функции форматов текста
          */
         'h1': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h1>');
-            this.$div.focus();
+            _this.$div.focus();
             return false;
         },
         'h2': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h2>');
-            this.$div.focus();
+            _this.$div.focus();
             return false;
 
         },
         'h3': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h3>');
-            this.$div.focus();
+            _this.$div.focus();
             return false;
         },
         'h4': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h4>');
-            this.$div.focus();
+            _this.$div.focus();
             return false;
         },
         'h5': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h5>');
-            this.$div.focus();
+            _this.$div.focus();
             return false;
         },
         'h6': function () {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<h6>');
-            this.$div.focus();
+            _this.$div.focus();
+            return false;
+        },
+        'p': function () {
+            document.execCommand('RemoveFormat', false, true);
+            document.execCommand('FormatBlock', false, '<p>');
+            _this.$div.focus();
             return false;
         },
 
@@ -668,6 +674,14 @@ mte.prototype = {
                 case 'textFormats':
                     var options = this.textFormats;
                     this.addTextFormats(options);
+                    _this = this;
+
+                    $('select[name="textFormat"]').change(function () {
+                        selectedFormat = $(this).val();
+                        console.log('textFormat changed on', selectedFormat);
+                        _this.plugins[selectedFormat](_this);
+                    });
+
                     break;
                 // Вставляем кнопку
                 default:
