@@ -193,10 +193,15 @@ mte.prototype = {
     toolbarButtons: [
         'textFormats','divider',
         'b','i','strike','u','divider',
-        'ol','ul','l_up','l_down','divider',
-        'image','a','divider',
-        // look the clearFormat function description
-        'removeformat'
+        /**
+         * TODO: работы по кнопкам списков вынесены в ветку lists
+         */
+        //'ol','ul','l_up','l_down','divider',
+        'image','a'//,'divider',
+        /**
+         * TODO: look the clearFormat function description
+         */
+        //'removeformat'
     ],
 
     /**
