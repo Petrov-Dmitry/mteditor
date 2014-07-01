@@ -689,47 +689,76 @@ mte.prototype = {
         if (this.mode === 'visual') {
             return;
         }
-        pValue = this.$textarea.val();
+        newValue = value = this.$textarea.val();
 
-        // Регулярки
-        exprStart = /^\<(p|h\d{1}|div.*|ul|ol|li)\>/igm;          // наличие тега в начале строки
-        exprEnd = /\<.*\>$/igm;                            // наличие тега в конце строки
-        exprBr = /(?:\<br\>)*\n{1}|(?:\<br\>)|(?:\<br\s\/\>)/igm;       // переносы
-
-
-        exprPar = /(\<\/(p|h\d{1}|div|br)\>\n*\<br\>\n*)/igm;  // параграфы
-
-        // Найти одиночные переносы - заменить на br с переносом
-        parts = pValue.split(exprBr);
-        pValue = '';
+        // Разбить текст по переносам строк
+        parts = newValue.split(/\n/igm);
+        newValue = '';
         for (var i = 0; i < parts.length; ++i) {
-            // Если в конце текста нет одного из закрывающих тегов p, Hn или div.image
-            if (parts[i].search(exprEnd) < 0) {
-                parts[i] = parts[i] +'<br>\n';
-            } else {
-                parts[i] = parts[i] +'\n';
+            // Получим строку из текста
+            var str, strPrev, strNext;
+            str = parts[i];
+            // Проверим наличие и получим предыдущую и следующую строки
+            if((i - 1) in parts) {
+                strPrev = parts[i - 1];
             }
-            pValue = pValue + parts[i];
+            if ((i + 1) in parts) {
+                strNext = parts[i + 1];
+            }
+
+            // Запишем открывающий p
+            /**
+             * Если
+             * предыдущая строка отстутствует
+             * ИЛИ (в конце предыдущей строки есть закрывающий p|div|h\d|ul|ol
+             * И в начале следующей нет открывающего тега p|div|h\d|ul|ol|li))
+             * И в начале текущей строки нет открывающего тега p|div|h\d|ul|ol|li
+             */
+            if ((!strPrev
+                || (strPrev.search(/\<\/(p|div|h\d|ul|ol|li)\>$/igm) >= 0
+                    && strNext
+                    && strNext.search(/^\s*\<(p|div.*|h\d|ul|ol|li)\>/igm) < 0
+                ))
+                && str.length > 0
+                && str.search(/^\s*\<(p|div.*|h\d|ul|ol|li)\>|^\s*\<\/(p|div|h\d|ul|ol|li)\>/igm) < 0
+            ) {
+                str = '<p>'+ str;
+            }
+
+            // Запишем br
+            /**
+             * Если
+             * в конце текущей нет закрывающих p|div|h\d|ul|ol|li ИЛИ br
+             * И в начале следующей нет открывающих p|div|h\d|ul|ol|li
+             */
+            if (str.length > 0
+                && str.search(/\<\/(p|div|h\d|ul|ol|li)\>$|\<br\>$/igm) < 0
+                && strNext.length > 0
+                && strNext.search(/^\s*\<(p|div.*|h\d|ul|ol|li)\>/igm) < 0
+            ) {
+                str = str +'<br>';
+            }
+            // Заменим варианты br
+            str = str.replace(/\<br \/\>/igm, '<br>\n');
+
+            // Запишем закрывающий p
+            /**
+             * Если
+             * в конце текущей нет закрывающих ИЛИ открывающих p|div|h\d|ul|ol|li ИЛИ br
+             */
+            if (str.length > 0
+                && str.search(/\<\/(p|div|h\d|ul|ol|li)\>$|\<(p|div.*|h\d|ul|ol|li)\>$|\<br\>$/igm) < 0
+            ) {
+                str = str +'</p>';
+            }
+
+            // Запишем перенос, ради читаемости текста
+            str.length > 0 ? str = str +'\n':false;
+            newValue = newValue + str;
         }
 
-        // Найти параграфы - заменить на p с 2-мя переносами
-        parts = pValue.split(exprPar);
-        pValue = '';
-        for (var i = 0; i < parts.length; ++i) {
-            if (parts[i].length > 0) {
-                // Если в начале текста нет одного из тегов p, Hn или div.image
-                if (parts[i].search(exprStart)) {
-                    parts[i] = '<p>'+ parts[i];
-                }
-                // Если в конце текста нет одного из закрывающих тегов p, Hn или div.image
-                if (parts[i].search(exprEnd)) {
-                    parts[i] = parts[i] +'</p>\n';
-                }
-                pValue = pValue + parts[i];
-            }
-        }
-
-        this.$div.html(pValue);
+        value = newValue;
+        this.$div.html(value);
         this.$textarea.hide();
         this.$div.show();
         $('.mte_switch_visual', this.$wrapper).hide();
