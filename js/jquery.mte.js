@@ -55,6 +55,7 @@ function mte(textarea, options) {
     this.$div.bind('keyup click', function (e) {
         var $nodes = _this.getSelectedHtml();
         console.log('\nCatch selection-event on '+ $nodes.length +' elements');
+        console.log('Selected elements', $nodes);
 
         var menuButtons = _this.getToolbar().find('.mte_toolbar_button');
         var textFormatOptions = _this.getToolbar().find('.mte_toolbar_select[name="textFormat"]');
@@ -101,19 +102,6 @@ function mte(textarea, options) {
                     menuButtons.removeClass('active');
                     button.addClass('active');
                     textFormatOptions.val('p');
-                    /*
-                    _this.showModal('link-form');
-                    $('.mte_modal [name=name]').val($node.text());
-                    $('.mte_modal [name=url]').val($node.attr('href'));
-
-                    $('.mte_modal_submit').click(function () {
-                        var name = $('.mte_modal [name=name]').val();
-                        var url = $('.mte_modal [name=url]').val();
-                        $node.text(name);
-                        $node.attr('href', url);
-                        _this.closeModal();
-                    });
-                    */
                     break;
                 case 'p':
                     menuButtons.removeClass('active');
@@ -379,7 +367,7 @@ mte.prototype = {
             return false;
         },
 
-        /*
+        /**
          * Функции форматов текста
          */
         'h1': function () {
@@ -940,6 +928,7 @@ mte.prototype = {
      */
     getSelectedHtml: function() {
         var selection = window.getSelection();
+        console.log('getSelectedHtml', selection);
         if( selection ) {
             var range = (document.all ? selection.createRange() : selection.getRangeAt(selection.rangeCount - 1).cloneRange());
 

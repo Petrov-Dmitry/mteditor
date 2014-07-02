@@ -1,9 +1,35 @@
 .mte_wrapper { display: table; border: 1px solid #ccc; margin: 0 0 10px; }
 .mte_div{font-size: 13px; font-family: tahoma; border: solid 1px #ccc; background: #fff; padding: 2px 5px; overflow-y: auto;}
-.mte_div .image{margin: 5px;}
-.mte_div .image.left{float: left;}
-.mte_div .image.center{float: center;}
-.mte_div .image.right{float: right;}
+
+.mte_div .image {}
+.mte_div .image .image_wrap {
+    display: inline-block;
+    border: 1px solid #ccc;
+    text-align: left;
+}
+.mte_div .image.left {
+    float: left;
+    margin-right: 6px;
+}
+.mte_div .image.right {
+    float: right;
+    margin-left: 6px;
+}
+.mte_div .image.center {
+    text-align: center;
+}
+.mte_div .image .image_title,
+.mte_div .image .image_alt {
+    padding: 2px 4px;
+}
+.mte_div .image .image_img {}
+.mte_div .image .image_title {
+    background-color: #ccc;
+}
+.mte_div .image .image_alt {
+    background-color: #eee;
+}
+
 .mte_div h1, .mte_div h2, .mte_div h3{color: #444; background-color: #fff; background-image: none; padding: 0; margin: 10px 0;}
 .mte_div h1{font-size: 28px;}
 .mte_div h2{font-size: 24px;}
