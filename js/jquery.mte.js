@@ -561,10 +561,37 @@ mte.prototype = {
                         <td>{{modal.link}}:</td>\
                         <td><input type="text" name="url" size="40" value="" /></td>\
                     </tr>\
+                    <tr>\
+                        <td>{{modal.title}}:</td>\
+                        <td><input type="text" name="title" size="40" value="" /></td>\
+                    </tr>\
+                    <tr>\
+                        <td>{{modal.alt}}:</td>\
+                        <td><textarea name="alt" cols="39" rows="4" style="resize: none;"></textarea></td>\
+                    </tr>\
+                    <tr>\
+                        <td>{{modal.floating}}:</td>\
+                        <td>\
+                            <select name="float">\
+                                <option value="left">{{modal.float_left}}</option>\
+                                <option value="center">{{modal.float_center}}</option>\
+                                <option value="right">{{modal.float_right}}</option>\
+                            </select>\
+                        </td>\
+                    </tr>\
+                    <tr>\
+                        <td>{{modal.dimensions}}:</td>\
+                        <td>\
+                            <input type="text" name="width" title="{{modal.width}}" size="4" value="" />px\
+                            <span class="dim_div"></span>\
+                            <input type="text" name="height" title="{{modal.height}}" size="4" value="" />px\
+                        </td>\
+                    </tr>\
                     <tr colspan="2">\
                         <td>\
                             <input type="button" value="{{modal.insert}}" class="mte_modal_submit" />\
                             <input type="button" value="{{modal.cancel}}" class="mte_modal_cancel" />\
+                            <input type="button" value="{{modal.remove}}" class="mte_modal_remove" />\
                         </td>\
                     </tr>\
                 </table>\
@@ -630,6 +657,15 @@ mte.prototype = {
             'modal.insert_link': 'Link',
             'modal.image': 'Image',
             'modal.link': 'Link',
+            'modal.title': 'Title',
+            'modal.alt': 'Alt',
+            'modal.floating': 'Float',
+            'modal.float_left': 'Left',
+            'modal.float_center': 'Center',
+            'modal.float_right': 'Right',
+            'modal.dimensions': 'Dimensions',
+            'modal.width': 'Width',
+            'modal.height': 'Height',
             'modal.target': 'Target',
             'modal.newwindow': 'New window',
             'modal.selfwindow': 'Self window',
@@ -667,6 +703,15 @@ mte.prototype = {
             'modal.insert_link': 'Вставка ссылки',
             'modal.image': 'Изображение',
             'modal.link': 'Ссылка',
+            'modal.title': 'Название',
+            'modal.alt': 'Подпись',
+            'modal.floating': 'Выравнивание',
+            'modal.float_left': 'Слева',
+            'modal.float_center': 'По-центру',
+            'modal.float_right': 'Справа',
+            'modal.dimensions': 'Размеры',
+            'modal.width': 'Ширина',
+            'modal.height': 'Высота',
             'modal.target': 'Открывать в',
             'modal.newwindow': 'Новом окне',
             'modal.selfwindow': 'Текущем окне',

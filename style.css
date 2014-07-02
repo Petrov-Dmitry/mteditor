@@ -150,3 +150,8 @@
 .mte_modal h1{font-size: 20px;}
 .mte_modal_throbber{display: inline-block; width: 16px; height: 16px; background-image: url(img/throbber.gif);}
 .mte_modal_thumb{max-width: 50px;}
+
+.pancil_modal_img_form .dim_div:before {
+    content: 'X';
+    padding: 6px;
+}
