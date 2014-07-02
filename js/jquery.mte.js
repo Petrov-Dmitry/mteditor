@@ -13,6 +13,7 @@ function mte(textarea, options) {
 
     this.default_language = 'ru';
     this.default_mode = 'visual';
+    this.default_file_uploader = '/mte/upload-image.php';
     this.default_menuDivider = '<span class="divider"></span>';
 
     var _this = this;
@@ -25,7 +26,7 @@ function mte(textarea, options) {
         this.options = options;
     }
     // Set options
-    this.options.uploaderUrl = this.options.uploaderUrl || '/upload/add/images/';
+    this.options.uploaderUrl = this.options.uploaderUrl || this.default_file_uploader;
     this.toolbarButtons = this.options.toolbarButtons || this.toolbarButtons;
     this.language = this.options.language || this.default_language;
     this.options.mode = this.options.mode || this.default_mode;
@@ -429,15 +430,87 @@ mte.prototype = {
          * получить JSON-ответ с сохраненными данными и вставить картинку в редактируемый текст
          */
         'image': function() {
-            this.showModal('image-form');
+            var selected = this.getSelectedHtml()[0];
+            var tag = selected.tagName.toLowerCase();
+            var button = this.getButton('image');
             var _this = this;
-            $('.mte_modal_submit').click(function () {
-                var url = $('.mte_modal [name=url]').val();
-                _this.closeModal();
 
-                _this.restoreSelection();
-                _this.insertHtml('<img src="' + url + '" />');
-            });
+            // Добавление/редактирование картинок
+            switch (tag) {
+                // Работаем с существующей картинкой
+                case 'div':
+                    break;
+                // Создаем картинку
+                default:
+                    // Определим перед каким блоком вставлять картинку
+                    if (tag !== 'p') {
+                        selected = $(selected).closest('p');
+                    }
+                    // Покажем форму
+                    this.showModal('image-form');
+                    // "Вешаем" отправку формы
+                    $('.mte_modal_submit').click(function () {
+                        // AJAX-запрос
+                        var formData = new FormData($('form')[0]);
+                        $.ajax({
+                            url: _this.options.uploaderUrl,
+                            type: 'POST',
+                            xhr: function() {  // Custom XMLHttpRequest
+                                var myXhr = $.ajaxSettings.xhr();
+                                return myXhr;
+                            },
+                            data: formData,
+                            dataType: "json",
+
+                            cache: false,
+                            contentType: false,
+                            processData: false,
+
+                            //beforeSend: beforeSendHandler,
+                            success: function (response){
+                                _this.closeModal();
+                                _this.restoreSelection();
+                                var nImage = '<div class="image '+ response.float +'">\n\t'
+                                    +'<div class="image_wrap"';
+                                if (response.width !== '') {
+                                    nImage += ' style="width:'+ response.width +'px;"';
+                                }
+                                nImage += '>\n\t\t'
+                                    +'<div class="image_img">\n\t\t\t'
+                                    +'<img src="'+ response.url +'"';
+                                if (response.title !== '') {
+                                    nImage += ' title="'+ response.title +'"'
+                                }
+                                if (response.alt !== '') {
+                                    nImage += ' alt="'+ response.alt +'"'
+                                }
+                                if (response.width !== '') {
+                                    nImage += ' width="'+ response.width +'"'
+                                }
+                                if (response.height !== '') {
+                                    nImage += ' height="'+ response.height +'"'
+                                }
+                                nImage += '>\n\t\t</div>\n\t';
+                                if (response.title !== '') {
+                                    nImage += '<div class="image_title">'+ response.title +'</div>\n\t';
+                                }
+                                if (response.alt !== '') {
+                                    nImage += '<div class="image_alt">'+ response.alt +'</div>\n\t';
+                                }
+                                nImage += '</div>\n</div>\n';
+
+                                selected.before(nImage);
+                            },
+                            error: function (response) {
+                                _this.closeModal();
+                                _this.restoreSelection();
+                                console.log('response', response);
+                                alert('Ошибка!\nФайл не загружен');
+                            }
+                        });
+                    });
+                    break;
+            }
         },
 
         'a': function() {
@@ -545,7 +618,7 @@ mte.prototype = {
         'modal-background': '<div class="mte_modal_background"></div>',
 
         'image-form': '<h1>{{modal.insert_image}}</h1>\
-            <form class="pancil_modal_img_form" action="{{UPLOADER_URL}}" method="POST" enctype="multipart/form-data" >\
+            <form class="mte_modal_img_form" action="{{UPLOADER_URL}}" method="POST" enctype="multipart/form-data" >\
                 <table>\
                     <tr>\
                         <td>{{modal.image}}:</td>\
@@ -973,7 +1046,7 @@ mte.prototype = {
      */
     getSelectedHtml: function() {
         var selection = window.getSelection();
-        console.log('getSelectedHtml', selection);
+        console.log('This is getSelectedHtml', selection);
         if( selection ) {
             var range = (document.all ? selection.createRange() : selection.getRangeAt(selection.rangeCount - 1).cloneRange());
 
