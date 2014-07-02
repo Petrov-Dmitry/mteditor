@@ -452,13 +452,11 @@ mte.prototype = {
             });
         },
 
-        /**
-         * TODO: реализовать удаление ссылок
-         */
         'a': function() {
             var selected = this.getSelectedHtml()[0];
             var tag = selected.tagName.toLowerCase();
             var text = this.getSelectedText();
+            var button = this.getButton('a');
             var _this = this;
             // Добавление/редактирование ссылок
             switch (tag) {
@@ -474,7 +472,7 @@ mte.prototype = {
                     $('.mte_modal [name=name]').val(text);
                     $('.mte_modal [name=url]').val(linkHref);
                     $('.mte_modal [name=target]').val(linkTarget);
-                    // Вешаем "отправку" формы
+                    // "Вешаем" отправку формы
                     $('.mte_modal_submit').click(function () {
                         var nText = $('.mte_modal [name=name]').val();
                         var nHref = $('.mte_modal [name=url]').val();
@@ -484,8 +482,14 @@ mte.prototype = {
                         _this.restoreSelection();
                         $(selected).replaceWith('<a href="'+ nHref +'" target="'+ nTarget +'">'+ nText +'</a>');
                     });
+                    // "Вешаем" удаление ссылки
+                    $('.mte_modal_remove').click(function () {
+                        _this.closeModal();
+                        _this.restoreSelection();
+                        $(selected).replaceWith(text);
+                        button.removeClass('active');
+                    });
                     break;
-
                 // Создаем ссылку
                 default:
                     // Проверим наличие текста ссылки
@@ -502,7 +506,10 @@ mte.prototype = {
                         _this.closeModal();
                         _this.restoreSelection();
                         _this.insertHtml('<a href="'+ nHref +'" target="'+ nTarget +'">'+ nText +'</a>');
+                        button.addClass('active');
                     });
+                    // Ссылки еще нет - кнопка удалить не нужна
+                    $('.mte_modal_remove').remove();
                     break;
             }
         },
