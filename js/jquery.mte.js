@@ -197,7 +197,7 @@ mte.prototype = {
          * TODO: работы по кнопкам списков вынесены в ветку lists
          */
         //'ol','ul','l_up','l_down','divider',
-        'image','a'//,'divider',
+        'a','image'//,'divider',
         /**
          * TODO: look the clearFormat function description
          */
@@ -457,7 +457,60 @@ mte.prototype = {
          * реализовать не только добавление/редактирование ссылок, но и их удаление
          * расширить форму ссылки полем title и выбором target
          */
-        'link': function() {
+        'a': function() {
+            var selected = this.getSelectedHtml()[0];
+            var tag = selected.tagName.toLowerCase();
+            var text = this.getSelectedText();
+            var _this = this;
+
+            console.log('A');
+            console.log('selected elements', $(selected));
+            console.log('selected tag', tag);
+            console.log('selected text', text);
+
+            switch (tag) {
+                // Работаем с существующей ссылкой
+                case 'a':
+                    console.log('Обрабатываем существующую ссылку');
+                    // Проверим наличие текста ссылки
+                    if (!text) {
+                        text = selected.innerHTML;
+                        console.log('text selecting', text);
+                    }
+                    var linkHref = selected.href;
+                    var linkTarget = selected.target;
+
+                    console.log('ссылка',linkHref);
+                    console.log('цель',linkTarget);
+
+                    // Открываем и заполняем форму ссылки
+                    this.showModal('link-form');
+                    $('.mte_modal [name=name]').val(text);
+                    $('.mte_modal [name=url]').val(linkHref);
+                    $('.mte_modal [name=target]').val(linkTarget);
+
+                    // Вешаем "отправку" формы
+                    $('.mte_modal_submit').click(function () {
+                        console.log('Submitting link-form');
+                        var nText = $('.mte_modal [name=name]').val();
+                        var nHref = $('.mte_modal [name=url]').val();
+                        var nTarget = $('.mte_modal [name=target]').val();
+                        console.log('recreate link', nText, nHref, nTarget);
+
+                        _this.closeModal();
+
+                        $(selected).replaceWith('<a href="'+ nHref +'" target="'+ nTarget +'">'+ nText +'</a>');
+                        _this.restoreSelection();
+                    });
+                    break;
+                // Создаем ссылку
+                default:
+                    console.log('Создаем ссылку');
+                    break;
+            }
+
+
+            /*
             this.showModal('link-form');
             var text = this.getSelectedText();
             if (text) {
@@ -472,6 +525,7 @@ mte.prototype = {
                 _this.restoreSelection();
                 _this.insertHtml('<a href="' + url + '">' + name + '</a>');
             });
+            */
         },
 
         /**
@@ -552,10 +606,20 @@ mte.prototype = {
                     <td>{{modal.link}}:</td>\
                     <td><input type="text" name="url" size="40" value="http://" /></td>\
                 </tr>\
+                <tr>\
+                    <td>{{modal.target}}:</td>\
+                    <td>\
+                        <select name="target">\
+                            <option value="_blank">{{modal.newwindow}}</option>\
+                            <option value="_self">{{modal.selfwindow}}</option>\
+                        </select>\
+                    </td>\
+                </tr>\
                 <tr colspan="2">\
                     <td>\
                         <input type="button" value="{{modal.insert}}" class="mte_modal_submit" />\
                         <input type="button" value="{{modal.cancel}}" class="mte_modal_cancel" />\
+                        <input type="button" value="{{modal.remove}}" class="mte_modal_remove" />\
                     </td>\
                 </tr>\
             </table>'
@@ -587,10 +651,14 @@ mte.prototype = {
 
             'modal.insert': 'Insert',
             'modal.cancel': 'Cancel',
+            'modal.remove': 'Remove',
             'modal.insert_image': 'Image',
             'modal.insert_link': 'Link',
             'modal.image': 'Image',
             'modal.link': 'Link',
+            'modal.target': 'Target',
+            'modal.newwindow': 'New window',
+            'modal.selfwindow': 'Self window',
             'modal.or': 'or',
             'modal.name': 'Name',
             'modal.html_code': 'HTML code'
@@ -620,10 +688,14 @@ mte.prototype = {
 
             'modal.insert': 'Вставить',
             'modal.cancel': 'Отмена',
+            'modal.remove': 'Удалить',
             'modal.insert_image': 'Вставка изображения',
             'modal.insert_link': 'Вставка ссылки',
             'modal.image': 'Изображение',
             'modal.link': 'Ссылка',
+            'modal.target': 'Открывать в',
+            'modal.newwindow': 'Новом окне',
+            'modal.selfwindow': 'Текущем окне',
             'modal.or': 'или',
             'modal.name': 'Название',
             'modal.html_code': 'HTML код'
