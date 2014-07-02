@@ -453,79 +453,58 @@ mte.prototype = {
         },
 
         /**
-         * TODO:
-         * реализовать не только добавление/редактирование ссылок, но и их удаление
-         * расширить форму ссылки полем title и выбором target
+         * TODO: реализовать удаление ссылок
          */
         'a': function() {
             var selected = this.getSelectedHtml()[0];
             var tag = selected.tagName.toLowerCase();
             var text = this.getSelectedText();
             var _this = this;
-
-            console.log('A');
-            console.log('selected elements', $(selected));
-            console.log('selected tag', tag);
-            console.log('selected text', text);
-
+            // Добавление/редактирование ссылок
             switch (tag) {
                 // Работаем с существующей ссылкой
                 case 'a':
-                    console.log('Обрабатываем существующую ссылку');
-                    // Проверим наличие текста ссылки
-                    if (!text) {
-                        text = selected.innerHTML;
-                        console.log('text selecting', text);
-                    }
+                    // Получим текст ссылки
+                    if (!text) { text = selected.innerHTML; }
+                    // Получим адрес и цель ссылки
                     var linkHref = selected.href;
                     var linkTarget = selected.target;
-
-                    console.log('ссылка',linkHref);
-                    console.log('цель',linkTarget);
-
                     // Открываем и заполняем форму ссылки
                     this.showModal('link-form');
                     $('.mte_modal [name=name]').val(text);
                     $('.mte_modal [name=url]').val(linkHref);
                     $('.mte_modal [name=target]').val(linkTarget);
-
                     // Вешаем "отправку" формы
                     $('.mte_modal_submit').click(function () {
-                        console.log('Submitting link-form');
                         var nText = $('.mte_modal [name=name]').val();
                         var nHref = $('.mte_modal [name=url]').val();
                         var nTarget = $('.mte_modal [name=target]').val();
-                        console.log('recreate link', nText, nHref, nTarget);
-
+                        // Размещаем ссылку в тексте
                         _this.closeModal();
-
-                        $(selected).replaceWith('<a href="'+ nHref +'" target="'+ nTarget +'">'+ nText +'</a>');
                         _this.restoreSelection();
+                        $(selected).replaceWith('<a href="'+ nHref +'" target="'+ nTarget +'">'+ nText +'</a>');
                     });
                     break;
+
                 // Создаем ссылку
                 default:
-                    console.log('Создаем ссылку');
+                    // Проверим наличие текста ссылки
+                    if (!text) { break; }
+                    // Открываем и заполняем форму ссылки
+                    this.showModal('link-form');
+                    $('.mte_modal [name=name]').val(text);
+                    // Вешаем "отправку" формы
+                    $('.mte_modal_submit').click(function () {
+                        var nText = $('.mte_modal [name=name]').val();
+                        var nHref = $('.mte_modal [name=url]').val();
+                        var nTarget = $('.mte_modal [name=target]').val();
+                        // Размещаем ссылку в тексте
+                        _this.closeModal();
+                        _this.restoreSelection();
+                        _this.insertHtml('<a href="'+ nHref +'" target="'+ nTarget +'">'+ nText +'</a>');
+                    });
                     break;
             }
-
-
-            /*
-            this.showModal('link-form');
-            var text = this.getSelectedText();
-            if (text) {
-                $('.mte_modal [name=name]').val(text);
-            }
-            var _this = this;
-            $('.mte_modal_submit').click(function () {
-                var name = $('.mte_modal [name=name]').val();
-                var url = $('.mte_modal [name=url]').val();
-                _this.closeModal();
-
-                _this.restoreSelection();
-                _this.insertHtml('<a href="' + url + '">' + name + '</a>');
-            });
-            */
         },
 
         /**
@@ -922,6 +901,18 @@ mte.prototype = {
     closeModal: function () {
         $('.mte_modal').remove();
         $('.mte_modal_background').remove();
+    },
+
+    getSelected: function() {
+        var t = '';
+        if (window.getSelection) {
+            t = window.getSelection();
+        } else if (document.getSelection) {
+            t = document.getSelection();
+        } else if (document.selection) {
+            t = document.selection.createRange().text;
+        }
+        return t;
     },
 
     getSelectedText: function () {
