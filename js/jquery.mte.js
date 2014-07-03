@@ -58,21 +58,11 @@ function mte(textarea, options) {
         // Элементы интерфейса
         var menuButtons = _this.getToolbar().find('.mte_toolbar_button');
         var textFormatOptions = _this.getToolbar().find('.mte_toolbar_select[name="textFormat"]');
-        var selected = _this.getSelected();
-        console.log(selected);
-
-
 
         var $nodes = _this.getSelectedHtml();
         console.log('Catch selection-event on '+ $nodes.length +' elements');
         console.log('Selected elements', $nodes);
 
-
-
-        /**
-         * TODO:
-         * отработать события на элементах, в том числе на списке выделенных элементов
-         */
         // Если элементов множество
         if ($nodes.length > 1) {
             console.log('элементов множество', $nodes);
@@ -371,7 +361,7 @@ mte.prototype = {
             return false;
         },
 
-        /**
+        /*
          * Функции форматов текста
          */
         'h1': function () {
@@ -424,9 +414,6 @@ mte.prototype = {
          * добавить поле checkbox name=showorigin - показывать или нет всплывашку с оригиналом
          * поле alt может показываться как подпись к картинке, title как заголовок подписи
          * поля width, height, если не заданы, должны использовать умолчания из настроек
-         *
-         * реализовать отправку записанных данных картинки AJAX-ом
-         * получить JSON-ответ с сохраненными данными и вставить картинку в редактируемый текст
          */
         'image': function() {
             var selected = this.getSelectedHtml()[0];
@@ -438,21 +425,55 @@ mte.prototype = {
             switch (tag) {
                 // Работаем с существующей картинкой
                 case 'div':
+                    // Обрабатываем клики только по блокам картинок
+                    if ($(selected).hasClass('image')
+                        || $(selected).hasClass('image_wrap')
+                        || $(selected).hasClass('image_img')
+                        || $(selected).hasClass('image_title')
+                        || $(selected).hasClass('image_alt')
+                    ) {
+                        // Если выбран не "верхний" див блока, то выберем его
+                        if (!$(selected).hasClass('image')) {
+                            selected = $(selected).closest('.image');
+                        }
+                        // Получим данные картинки
+                        var selectedImage = selected.find('img')[0];
+                        // Покажем и заполним форму
+                        this.showModal('image-form');
+                        $('.mte_modal [name=url]').val(selectedImage.src);
+                        $('.mte_modal [name=title]').val(selectedImage.title);
+                        $('.mte_modal [name=alt]').val(selectedImage.alt);
+                        $('.mte_modal [name=float]').val(selectedImage.className);
+                        $('.mte_modal [name=width]').val(selectedImage.width);
+                        $('.mte_modal [name=height]').val(selectedImage.height);
+                        // "Вешаем" отправку формы
+                        $('.mte_modal_submit').click(function () {
+                            var newImage = {
+                                'url':$('.mte_modal [name=url]').val(),
+                                'title':$('.mte_modal [name=title]').val(),
+                                'alt':$('.mte_modal [name=alt]').val(),
+                                'float':$('.mte_modal [name=float]').val(),
+                                'width':$('.mte_modal [name=width]').val(),
+                                'height':$('.mte_modal [name=height]').val()
+                            }
+                            newImage = _this.genImage(newImage);
+                            // Вставляем картинку
+                            _this.closeModal();
+                            _this.restoreSelection();
+                            $(selected).replaceWith(newImage);
+                        });
+                    }
                     break;
                 // Создаем картинку
                 default:
                     // Определим перед каким блоком вставлять картинку
-                    console.log('tag', tag);
                     if (tag !== 'p') {
                         selected = $(selected).closest('p');
                     } else {
                         selected = $(selected);
                     }
-                    console.log('selected', selected);
-
                     // Покажем форму
                     this.showModal('image-form');
-
                     // "Вешаем" AJAX-запрос на отправку формы
                     $('.mte_modal_submit').click(function () {
                         var formData = new FormData($('form')[0]);
@@ -466,46 +487,15 @@ mte.prototype = {
                             },
                             data: formData,
                             dataType: "json",
-
                             cache: false,
                             contentType: false,
                             processData: false,
                             //beforeSend: beforeSendHandler,
-
                             // Принимаем ответ и отрисовываем блок картинки
                             success: function (response){
                                 _this.closeModal();
                                 _this.restoreSelection();
-                                var nImage = '<div class="image '+ response.float +'">\n\t'
-                                    +'<div class="image_wrap"';
-                                if (response.width !== '') {
-                                    nImage += ' style="width:'+ (parseInt(response.width) + 6) +'px;"';
-                                }
-                                nImage += '>\n\t\t'
-                                    +'<div class="image_img">\n\t\t\t'
-                                    +'<img src="'+ response.url +'"';
-                                if (response.title !== '') {
-                                    nImage += ' title="'+ response.title +'"'
-                                }
-                                if (response.alt !== '') {
-                                    nImage += ' alt="'+ response.alt +'"'
-                                }
-                                if (response.width !== '') {
-                                    nImage += ' width="'+ response.width +'"'
-                                }
-                                if (response.height !== '') {
-                                    nImage += ' height="'+ response.height +'"'
-                                }
-                                nImage += '>\n\t\t</div>\n\t';
-                                if (response.title !== '') {
-                                    nImage += '<div class="image_title">'+ response.title +'</div>\n\t';
-                                }
-                                if (response.alt !== '') {
-                                    nImage += '<div class="image_alt">'+ response.alt +'</div>\n\t';
-                                }
-                                nImage += '</div>\n</div>\n';
-
-                                selected.before(nImage);
+                                selected.before(_this.genImage(response));
                             },
                             // Ошибка загрузки файла
                             error: function (response) {
@@ -516,6 +506,8 @@ mte.prototype = {
                             }
                         });
                     });
+                    // Картинки еще нет - кнопка удалить не нужна
+                    $('.mte_modal_remove').remove();
                     break;
             }
         },
@@ -583,7 +575,7 @@ mte.prototype = {
         },
 
         /**
-         * BUG TODO: переименовать функцию в clearFormat и использовать для очистки форматирования не только пользователем, но и внутри компонента
+         * BUG TODO: использовать функцию для очистки форматирования не только пользователем, но и внутри компонента
          *
          * все теги, кроме описанных кнопками меню toolbarButtons должны удаляться
          * должна удалять все атрибуты из оставшихся в тексте тегов
@@ -819,6 +811,39 @@ mte.prototype = {
             html = html.replace(token, context[name]);
         }
         return html;
+    },
+
+    genImage: function (img) {
+        console.log('generating image-block code', img);
+        var nImage = '<div class="image '+ img.float +'" contenteditable="false">\n\t'
+            +'<div class="image_wrap"';
+        if (img.width !== '') {
+            nImage += ' style="width:'+ (parseInt(img.width) + 6) +'px;"';
+        }
+        nImage += '>\n\t\t'
+            +'<div class="image_img">'
+            +'<img src="'+ img.url +'" class="'+ img.float +'"';
+        if (img.title !== '') {
+            nImage += ' title="'+ img.title +'"'
+        }
+        if (img.alt !== '') {
+            nImage += ' alt="'+ img.alt +'"'
+        }
+        if (img.width !== '') {
+            nImage += ' width="'+ img.width +'"'
+        }
+        if (img.height !== '') {
+            nImage += ' height="'+ img.height +'"'
+        }
+        nImage += '></div>\n\t';
+        if (img.title !== '') {
+            nImage += '<div class="image_title">'+ img.title +'</div>\n\t';
+        }
+        if (img.alt !== '') {
+            nImage += '<div class="image_alt">'+ img.alt +'</div>\n\t';
+        }
+        nImage += '</div>\n</div>\n';
+        return nImage;
     },
 
     /*
