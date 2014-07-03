@@ -54,12 +54,20 @@ function mte(textarea, options) {
 
     // Bind the reaction on events
     this.$div.bind('keyup click', function (e) {
-        var $nodes = _this.getSelectedHtml();
-        console.log('\nCatch selection-event on '+ $nodes.length +' elements');
-        console.log('Selected elements', $nodes);
-
+        console.log('\n=====================\nFocus on element');
+        // Элементы интерфейса
         var menuButtons = _this.getToolbar().find('.mte_toolbar_button');
         var textFormatOptions = _this.getToolbar().find('.mte_toolbar_select[name="textFormat"]');
+        var selected = _this.getSelected();
+        console.log(selected);
+
+
+
+        var $nodes = _this.getSelectedHtml();
+        console.log('Catch selection-event on '+ $nodes.length +' elements');
+        console.log('Selected elements', $nodes);
+
+
 
         /**
          * TODO:
@@ -141,6 +149,7 @@ function mte(textarea, options) {
                     break;
             }
         }
+        console.log('=====================\n');
     });
 
     // Making menu-toolbar
@@ -170,11 +179,6 @@ function mte(textarea, options) {
 }
 
 mte.prototype = {
-    /**
-     * TODO: форматы текста перенести в SELECT
-     * добавить обработку разделителей divider
-     * сделать соответствующие изменения в структуре translations и функции drawToolbar
-     */
     textFormats: [
         'h1','h2','h3','h4','h5','h6','divider',
         'p'
@@ -195,7 +199,6 @@ mte.prototype = {
 
     /**
      * TODO: см комментарий к toolbarButtons
-     * добавить в плагин соответствующие методы
      */
     plugins: {
         'b': function () {
@@ -417,14 +420,10 @@ mte.prototype = {
 
         /**
          * TODO:
-         * починить отображение ссылки (пути к файлу) на картинку в форме
          *
-         * расширить форму картинки полями: alt, title, width, height,
-         *  position - выравнивание: слева, справа, по центру,
-         *  textWrap - обтекание текстом или есть или нет,
-         *  showorigin - показывать или нет всплывашку с оригиналом
+         * добавить поле checkbox name=showorigin - показывать или нет всплывашку с оригиналом
          * поле alt может показываться как подпись к картинке, title как заголовок подписи
-         * остальные поля, если не заданы, должны использовать умолчания из настроек
+         * поля width, height, если не заданы, должны использовать умолчания из настроек
          *
          * реализовать отправку записанных данных картинки AJAX-ом
          * получить JSON-ответ с сохраненными данными и вставить картинку в редактируемый текст
@@ -443,19 +442,25 @@ mte.prototype = {
                 // Создаем картинку
                 default:
                     // Определим перед каким блоком вставлять картинку
+                    console.log('tag', tag);
                     if (tag !== 'p') {
                         selected = $(selected).closest('p');
+                    } else {
+                        selected = $(selected);
                     }
+                    console.log('selected', selected);
+
                     // Покажем форму
                     this.showModal('image-form');
-                    // "Вешаем" отправку формы
+
+                    // "Вешаем" AJAX-запрос на отправку формы
                     $('.mte_modal_submit').click(function () {
-                        // AJAX-запрос
                         var formData = new FormData($('form')[0]);
                         $.ajax({
                             url: _this.options.uploaderUrl,
                             type: 'POST',
-                            xhr: function() {  // Custom XMLHttpRequest
+                            // XMLHttpRequest
+                            xhr: function() {
                                 var myXhr = $.ajaxSettings.xhr();
                                 return myXhr;
                             },
@@ -465,15 +470,16 @@ mte.prototype = {
                             cache: false,
                             contentType: false,
                             processData: false,
-
                             //beforeSend: beforeSendHandler,
+
+                            // Принимаем ответ и отрисовываем блок картинки
                             success: function (response){
                                 _this.closeModal();
                                 _this.restoreSelection();
                                 var nImage = '<div class="image '+ response.float +'">\n\t'
                                     +'<div class="image_wrap"';
                                 if (response.width !== '') {
-                                    nImage += ' style="width:'+ response.width +'px;"';
+                                    nImage += ' style="width:'+ (parseInt(response.width) + 6) +'px;"';
                                 }
                                 nImage += '>\n\t\t'
                                     +'<div class="image_img">\n\t\t\t'
@@ -501,6 +507,7 @@ mte.prototype = {
 
                                 selected.before(nImage);
                             },
+                            // Ошибка загрузки файла
                             error: function (response) {
                                 _this.closeModal();
                                 _this.restoreSelection();
@@ -814,7 +821,7 @@ mte.prototype = {
         return html;
     },
 
-    /**
+    /*
      * Тулбар
      */
     addPlugin: function(name, func){

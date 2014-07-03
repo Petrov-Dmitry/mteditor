@@ -22,7 +22,10 @@
 .mte_div .image .image_alt {
     padding: 2px 4px;
 }
-.mte_div .image .image_img {}
+.mte_div .image .image_img {
+    border: 1px solid #ccc;
+    margin: 2px;
+}
 .mte_div .image .image_title {
     background-color: #ccc;
 }
