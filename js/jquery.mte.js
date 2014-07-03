@@ -76,6 +76,18 @@ function mte(textarea, options) {
              * Отработка событий при выборе тех или иных элементов
              */
             switch (tag) {
+                case 'div':
+                    if ($node.hasClass('image')
+                        || $node.hasClass('image_wrap')
+                        || $node.hasClass('image_img')
+                        || $node.hasClass('image_title')
+                        || $node.hasClass('image_alt')
+                    ) {
+                        menuButtons.removeClass('active');
+                        button = _this.getButton('image');
+                        button.addClass('active');
+                    }
+                    break;
                 case 'b':
                     menuButtons.removeClass('active');
                     button.addClass('active');
@@ -192,27 +204,23 @@ mte.prototype = {
      */
     plugins: {
         'b': function () {
-            console.log('Bold');
             this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('Bold', false, true);
             this.$div.focus();
             return false;
         },
-
         'i': function () {
             this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('Italic', false, true);
             this.$div.focus();
             return false;
         },
-
         'strike': function () {
             this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('StrikeThrough', false, true);
             this.$div.focus();
             return false;
         },
-
         'u': function () {
             this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('Underline', false, true);
@@ -452,8 +460,16 @@ mte.prototype = {
                             newImage = _this.genImage(newImage);
                             // Вставляем картинку
                             _this.closeModal();
-                            _this.restoreSelection();
+                            //_this.restoreSelection();
                             $(selected).replaceWith(newImage);
+                            button.removeClass('active');
+                        });
+                        // "Вешаем" удаление картинки
+                        $('.mte_modal_remove').click(function () {
+                            _this.closeModal();
+                            _this.restoreSelection();
+                            $(selected).remove();
+                            button.removeClass('active');
                         });
                     }
                     break;
@@ -489,6 +505,7 @@ mte.prototype = {
                                 _this.closeModal();
                                 _this.restoreSelection();
                                 selected.before(_this.genImage(response));
+                                button.addClass('active');
                             },
                             // Ошибка загрузки файла
                             error: function (response) {
@@ -807,7 +824,6 @@ mte.prototype = {
     },
 
     genImage: function (img) {
-        console.log('generating image-block code', img);
         var nImage = '<div class="image '+ img.float +'" contenteditable="false">\n\t'
             +'<div class="image_wrap"';
         if (img.width !== '') {
@@ -867,7 +883,6 @@ mte.prototype = {
 
                     $('select[name="textFormat"]').change(function () {
                         selectedFormat = $(this).val();
-                        console.log('textFormat changed on', selectedFormat);
                         _this.plugins[selectedFormat](_this);
                     });
 
@@ -1071,7 +1086,6 @@ mte.prototype = {
      */
     getSelectedHtml: function() {
         var selection = window.getSelection();
-        console.log('This is getSelectedHtml', selection);
         if( selection ) {
             var range = (document.all ? selection.createRange() : selection.getRangeAt(selection.rangeCount - 1).cloneRange());
 
