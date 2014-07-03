@@ -52,7 +52,9 @@ function mte(textarea, options) {
         }
     });
 
-    // Bind the reaction on events
+    /**
+     * Bind the reaction on events
+    **/
     this.$div.bind('keyup click', function (e) {
         console.log('\n=====================\nFocus on element');
         // Элементы интерфейса
@@ -72,11 +74,62 @@ function mte(textarea, options) {
             var $node = $($nodes[0]);
             var tag = $nodes[0].tagName.toLowerCase();
             var button = _this.getButton(tag);
-            /**
-             * Отработка событий при выборе тех или иных элементов
-             */
+            // Выделить кнопку
             switch (tag) {
-                case 'div':
+                case 'b':       // Жирный
+                    menuButtons.removeClass('active');
+                    button.addClass('active');
+                    textFormatOptions.val('p');
+                    break;
+                case 'i':       // Курсив
+                    menuButtons.removeClass('active');
+                    button.addClass('active');
+                    textFormatOptions.val('p');
+                    break;
+                case 'strike':  // Зачеркнуто
+                    menuButtons.removeClass('active');
+                    button.addClass('active');
+                    textFormatOptions.val('p');
+                    break;
+                case 'u':       // Подчеркнуто
+                    menuButtons.removeClass('active');
+                    button.addClass('active');
+                    textFormatOptions.val('p');
+                    break;
+                case 'h1':      // Заголовок 1
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+                case 'h2':      // Заголовок 2
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+                case 'h3':      // Заголовок 3
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+                case 'h4':      // Заголовок 4
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+                case 'h5':      // Заголовок 5
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+                case 'h6':      // Заголовок 6
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break;
+                case 'p':       // Абзац
+                    menuButtons.removeClass('active');
+                    textFormatOptions.val(tag);
+                    break
+                case 'a':       // Ссылка
+                    menuButtons.removeClass('active');
+                    button.addClass('active');
+                    textFormatOptions.val('p');
+                    break;
+                case 'div':     // Картинка
                     if ($node.hasClass('image')
                         || $node.hasClass('image_wrap')
                         || $node.hasClass('image_img')
@@ -88,61 +141,14 @@ function mte(textarea, options) {
                         button.addClass('active');
                     }
                     break;
-                case 'b':
-                    menuButtons.removeClass('active');
-                    button.addClass('active');
-                    textFormatOptions.val('p');
+                case 'span':
+                    if ($node.hasClass('tooltip')) {
+                        menuButtons.removeClass('active');
+                        button = _this.getButton('tooltip');
+                        button.addClass('active');
+                    }
                     break;
-                case 'i':
-                    menuButtons.removeClass('active');
-                    button.addClass('active');
-                    textFormatOptions.val('p');
-                    break;
-                case 'strike':
-                    menuButtons.removeClass('active');
-                    button.addClass('active');
-                    textFormatOptions.val('p');
-                    break;
-                case 'u':
-                    menuButtons.removeClass('active');
-                    button.addClass('active');
-                    textFormatOptions.val('p');
-                    break;
-                // Ссылка
-                case 'a':
-                    menuButtons.removeClass('active');
-                    button.addClass('active');
-                    textFormatOptions.val('p');
-                    break;
-                case 'p':
-                    menuButtons.removeClass('active');
-                    textFormatOptions.val(tag);
-                    break
-                case 'h1':
-                    menuButtons.removeClass('active');
-                    textFormatOptions.val(tag);
-                    break;
-                case 'h2':
-                    menuButtons.removeClass('active');
-                    textFormatOptions.val(tag);
-                    break;
-                case 'h3':
-                    menuButtons.removeClass('active');
-                    textFormatOptions.val(tag);
-                    break;
-                case 'h4':
-                    menuButtons.removeClass('active');
-                    textFormatOptions.val(tag);
-                    break;
-                case 'h5':
-                    menuButtons.removeClass('active');
-                    textFormatOptions.val(tag);
-                    break;
-                case 'h6':
-                    menuButtons.removeClass('active');
-                    textFormatOptions.val(tag);
-                    break;
-                case 'li':
+                case 'li':      // Списки
                     var parentTag = $node.parent()[0].tagName.toLowerCase();
                     button = _this.getButton(parentTag);
                     menuButtons.removeClass('active');
@@ -175,7 +181,6 @@ function mte(textarea, options) {
         return false;
     });
 
-
     // AJAX image uploading
     this.templates['image-form'] = this.templates['image-form'].replace('{{UPLOADER_URL}}', this.options.uploaderUrl);
 }
@@ -192,7 +197,7 @@ mte.prototype = {
          * TODO: работы по кнопкам списков вынесены в ветку lists
          */
         //'ol','ul','l_up','l_down','divider',
-        'a','image'//,'divider',
+        'a','image','tooltip'//,'divider',
         /**
          * TODO: look the clearFormat function description
          */
@@ -251,7 +256,6 @@ mte.prototype = {
             this.$div.focus();
             return false;
         },
-
         'ul': function () {
             console.log('UL');
             selectedElements = this.getSelectedHtml();
@@ -263,7 +267,6 @@ mte.prototype = {
             this.$div.focus();
             return false;
         },
-
         // Переместить элементы списка на уровень вверх
         'l_up': function() {
             listType = this.savedRange.startContainer.parentElement.parentElement.localName;    // UL or OL
@@ -323,7 +326,6 @@ mte.prototype = {
             this.$div.focus();
             return false;
         },
-
         // Переместить элементы списка на уровень вниз
         'l_down': function() {
             listType = this.savedRange.startContainer.parentElement.parentElement.localName;
@@ -520,6 +522,7 @@ mte.prototype = {
                     $('.mte_modal_remove').remove();
                     break;
             }
+            return false;
         },
 
         'a': function() {
@@ -580,6 +583,55 @@ mte.prototype = {
                     });
                     // Ссылки еще нет - кнопка удалить не нужна
                     $('.mte_modal_remove').remove();
+                    break;
+            }
+            return false;
+        },
+
+        'tooltip': function () {
+            var selected = this.getSelectedHtml()[0];
+            var tag = selected.tagName.toLowerCase();
+            var text = this.getSelectedText();
+            var button = this.getButton('tooltip');
+            var _this = this;
+            // Добавление/редактирование подсказок
+            switch (tag) {
+                // Работаем с существующей подсказкой
+                case 'span':
+                    // Получим содержимое дочерних элементов title и text
+                    var tooltipTitle = $(selected).find('.title').remove()[0].innerHTML;
+                    var tooltipText = $(selected).find('.text').remove()[0].innerHTML;
+                    // Удалим обертку
+                    $(selected).find('.balloon').remove();
+                    // Получим текст ссылки
+                    if (!text) { text = selected.innerHTML; }
+                    // Открываем и заполняем форму ссылки
+                    this.showModal('tooltip-form');
+                    $('.mte_modal [name=name]').val(text);
+                    $('.mte_modal [name=title]').val(tooltipTitle);
+                    $('.mte_modal [name=text]').val(tooltipText);
+                    // "Вешаем" отправку формы
+                    $('.mte_modal_submit').click(function () {
+                        var nName = $('.mte_modal [name=name]').val();
+                        var nTitle = $('.mte_modal [name=title]').val();
+                        var nText = $('.mte_modal [name=text]').val();
+                        // Размещаем блок в тексте
+                        _this.closeModal();
+                        _this.restoreSelection();
+                        $(selected).replaceWith('<span class="tooltip">'+ nName +'<span class="balloon" contenteditable="false">'
+                            +'<span class="title">'+ nTitle +'</span><span class="text">'+ nText +'</span></span></span>');
+                    });
+                    // "Вешаем" удаление ссылки
+                    $('.mte_modal_remove').click(function () {
+                        _this.closeModal();
+                        _this.restoreSelection();
+                        $(selected).replaceWith(text);
+                        button.removeClass('active');
+                    });
+                    break;
+                // Создаем подсказку
+                default:
+                    console.log('Создаем подсказку');
                     break;
             }
         },
@@ -705,15 +757,38 @@ mte.prototype = {
                         <input type="button" value="{{modal.remove}}" class="mte_modal_remove" />\
                     </td>\
                 </tr>\
+            </table>',
+
+        'tooltip-form': '<h1>{{modal.insert_tooltip}}</h1>\
+            <table>\
+                <tr>\
+                    <td>{{modal.name}}:</td>\
+                    <td><input type="text" name="name" size="40" value="" /></td>\
+                </tr>\
+                <tr>\
+                    <td>{{modal.title}}:</td>\
+                    <td><input type="text" name="title" size="40" value="" /></td>\
+                </tr>\
+                <tr>\
+                    <td>{{modal.text}}:</td>\
+                    <td><textarea name="text" cols="39" rows="4" style="resize: none;"></textarea></td>\
+                </tr>\
+                <tr colspan="2">\
+                    <td>\
+                        <input type="button" value="{{modal.insert}}" class="mte_modal_submit" />\
+                        <input type="button" value="{{modal.cancel}}" class="mte_modal_cancel" />\
+                        <input type="button" value="{{modal.remove}}" class="mte_modal_remove" />\
+                    </td>\
+                </tr>\
             </table>'
     },
 
     translations: {
         'en':{
-            'toolbar.bold': 'Bold',
-            'toolbar.italic': 'Italic',
+            'toolbar.b': 'Bold',
+            'toolbar.i': 'Italic',
             'toolbar.strike': 'Strike',
-            'toolbar.underline': 'Underline',
+            'toolbar.u': 'Underline',
             'toolbar.ol': 'Ordered List',
             'toolbar.ul': 'Unordered List',
             'toolbar.l_up': 'List level up',
@@ -726,7 +801,8 @@ mte.prototype = {
             'toolbar.h6': 'Headline 6',
             'toolbar.p': 'Paragraph',
             'toolbar.image': 'Image',
-            'toolbar.link': 'Link',
+            'toolbar.a': 'Link',
+            'toolbar.tooltip': 'Tooltip',
             'toolbar.removeformat': 'Remove Format',
 
             'toolbar.html_mode': 'Switch to HTML Mode',
@@ -737,9 +813,11 @@ mte.prototype = {
             'modal.remove': 'Remove',
             'modal.insert_image': 'Image',
             'modal.insert_link': 'Link',
+            'modal.insert_tooltip': 'Tooltip',
             'modal.image': 'Image',
             'modal.link': 'Link',
             'modal.title': 'Title',
+            'modal.text': 'Text',
             'modal.alt': 'Alt',
             'modal.floating': 'Float',
             'modal.float_left': 'Left',
@@ -756,10 +834,10 @@ mte.prototype = {
             'modal.html_code': 'HTML code'
         },
         'ru':{
-            'toolbar.bold': 'Жирный',
-            'toolbar.italic': 'Курсив',
+            'toolbar.b': 'Жирный',
+            'toolbar.i': 'Курсив',
             'toolbar.strike': 'Зачеркнутый',
-            'toolbar.underline': 'Подчеркивание',
+            'toolbar.u': 'Подчеркивание',
             'toolbar.ol': 'Нумерованый список',
             'toolbar.ul': 'Ненумерованный список',
             'toolbar.l_up': 'На уровень выше',
@@ -772,7 +850,8 @@ mte.prototype = {
             'toolbar.h6': 'Заголовок 6',
             'toolbar.p': 'Параграф',
             'toolbar.image': 'Изображение',
-            'toolbar.link': 'Ссылка',
+            'toolbar.a': 'Ссылка',
+            'toolbar.tooltip': 'Подсказка',
             'toolbar.removeformat': 'Очистить форматирование',
 
             'toolbar.html_mode': 'Переключить в режим HTML',
@@ -781,11 +860,13 @@ mte.prototype = {
             'modal.insert': 'Вставить',
             'modal.cancel': 'Отмена',
             'modal.remove': 'Удалить',
-            'modal.insert_image': 'Вставка изображения',
-            'modal.insert_link': 'Вставка ссылки',
+            'modal.insert_image': 'Изображение',
+            'modal.insert_link': 'Ссылка',
+            'modal.insert_tooltip': 'Подсказка',
             'modal.image': 'Изображение',
             'modal.link': 'Ссылка',
-            'modal.title': 'Название',
+            'modal.title': 'Заголовок',
+            'modal.text': 'Текст',
             'modal.alt': 'Подпись',
             'modal.floating': 'Выравнивание',
             'modal.float_left': 'Слева',
