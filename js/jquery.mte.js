@@ -408,13 +408,6 @@ mte.prototype = {
             return false;
         },
 
-        /**
-         * TODO:
-         *
-         * добавить поле checkbox name=showorigin - показывать или нет всплывашку с оригиналом
-         * поле alt может показываться как подпись к картинке, title как заголовок подписи
-         * поля width, height, если не заданы, должны использовать умолчания из настроек
-         */
         'image': function() {
             var selected = this.getSelectedHtml()[0];
             var tag = selected.tagName.toLowerCase();
