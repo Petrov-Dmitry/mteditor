@@ -42,32 +42,29 @@
 .mte_div .tooltip {
     border-bottom: 1px dashed #666;
     cursor: help;
+    display: inline;
 }
-.mte_div .tooltip .balloon {
+.mte_div .tooltip .tooltip_balloon {
     display: none;
     position: absolute;
-    width: 300px;
+    min-width: 100px;
+    max-width: 350px;
     background-color: #fff;
     border: 1px solid #ccc;
     cursor: default;
 }
-.mte_div .tooltip:hover .balloon {
+.mte_div .tooltip:hover .tooltip_balloon {
     display: inline;
-    position: absolute;
-    width: 300px;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    cursor: default;
 }
-.mte_div .tooltip .balloon span {
+.mte_div .tooltip .tooltip_balloon span {
     display: block;
     padding: 4px 6px;
 }
-.mte_div .tooltip .balloon .title {
+.mte_div .tooltip .tooltip_balloon .tooltip_title {
     background-color: #ccc;
     font-weight: bold;
 }
-.mte_div .tooltip .balloon .text {
+.mte_div .tooltip .tooltip_balloon .tooltip_text {
     background-color: #eee;
 }
 

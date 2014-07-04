@@ -142,7 +142,11 @@ function mte(textarea, options) {
                     }
                     break;
                 case 'span':
-                    if ($node.hasClass('tooltip')) {
+                    if ($node.hasClass('tooltip')
+                        || $node.hasClass('tooltip_balloon')
+                        || $node.hasClass('tooltip_title')
+                        || $node.hasClass('tooltip_hint')
+                    ) {
                         menuButtons.removeClass('active');
                         button = _this.getButton('tooltip');
                         button.addClass('active');
@@ -600,29 +604,31 @@ mte.prototype = {
                 case 'span':
                     var cloned = $(selected).clone()[0];
                     // Получим содержимое дочерних элементов title и text
-                    var tooltipTitle = $(cloned).find('.title').remove()[0].innerHTML;
-                    var tooltipText = $(cloned).find('.text').remove()[0].innerHTML;
+                    var tooltipTitle = $(cloned).find('.tooltip_title').remove()[0].innerHTML;
+                    var tooltipText = $(cloned).find('.tooltip_hint').remove()[0].innerHTML;
                     // Удалим обертку
-                    $(cloned).find('.balloon').remove();
+                    $(cloned).find('.tooltip_balloon').remove();
                     // Получим текст ссылки
                     if (!text) { text = cloned.innerHTML; }
                     // Открываем и заполняем форму ссылки
                     this.showModal('tooltip-form');
                     $('.mte_modal [name=name]').val(text);
                     $('.mte_modal [name=title]').val(tooltipTitle);
-                    $('.mte_modal [name=text]').val(tooltipText);
+                    $('.mte_modal [name=hint]').val(tooltipText);
                     // "Вешаем" отправку формы
                     $('.mte_modal_submit').click(function () {
-                        var nName = $('.mte_modal [name=name]').val();
-                        var nTitle = $('.mte_modal [name=title]').val();
-                        var nText = $('.mte_modal [name=text]').val();
+                        var newTooltip = {
+                            'text':$('.mte_modal [name=name]').val(),
+                            'title':$('.mte_modal [name=title]').val(),
+                            'tooltip':$('.mte_modal [name=hint]').val()
+                        }
+                        newTooltip = _this.genTooltip(newTooltip);
                         // Размещаем блок в тексте
                         _this.closeModal();
                         _this.restoreSelection();
-                        $(selected).replaceWith('<span class="tooltip">'+ nName +'<span class="balloon" contenteditable="false">'
-                            +'<span class="title">'+ nTitle +'</span><span class="text">'+ nText +'</span></span></span>');
+                        $(selected).replaceWith(newTooltip);
                     });
-                    // "Вешаем" удаление ссылки
+                    // "Вешаем" удаление подсказки
                     $('.mte_modal_remove').click(function () {
                         _this.closeModal();
                         _this.restoreSelection();
@@ -632,7 +638,27 @@ mte.prototype = {
                     break;
                 // Создаем подсказку
                 default:
-                    console.log('Создаем подсказку');
+                    // Проверим наличие текста ссылки
+                    if (!text) { break; }
+                    // Открываем и заполняем форму ссылки
+                    this.showModal('tooltip-form');
+                    $('.mte_modal [name=name]').val(text);
+                    // Вешаем "отправку" формы
+                    $('.mte_modal_submit').click(function () {
+                        var newTooltip = {
+                            'text':$('.mte_modal [name=name]').val(),
+                            'title':$('.mte_modal [name=title]').val(),
+                            'tooltip':$('.mte_modal [name=hint]').val()
+                        }
+                        newTooltip = _this.genTooltip(newTooltip);
+                        // Размещаем ссылку в тексте
+                        _this.closeModal();
+                        _this.restoreSelection();
+                        _this.insertHtml(newTooltip);
+                        button.addClass('active');
+                    });
+                    // Ссылки еще нет - кнопка удалить не нужна
+                    $('.mte_modal_remove').remove();
                     break;
             }
         },
@@ -771,8 +797,8 @@ mte.prototype = {
                     <td><input type="text" name="title" size="40" value="" /></td>\
                 </tr>\
                 <tr>\
-                    <td>{{modal.text}}:</td>\
-                    <td><textarea name="text" cols="39" rows="4" style="resize: none;"></textarea></td>\
+                    <td>{{modal.hint}}:</td>\
+                    <td><textarea name="hint" cols="39" rows="4" style="resize: none;"></textarea></td>\
                 </tr>\
                 <tr colspan="2">\
                     <td>\
@@ -818,7 +844,7 @@ mte.prototype = {
             'modal.image': 'Image',
             'modal.link': 'Link',
             'modal.title': 'Title',
-            'modal.text': 'Text',
+            'modal.hint': 'Text',
             'modal.alt': 'Alt',
             'modal.floating': 'Float',
             'modal.float_left': 'Left',
@@ -867,7 +893,7 @@ mte.prototype = {
             'modal.image': 'Изображение',
             'modal.link': 'Ссылка',
             'modal.title': 'Заголовок',
-            'modal.text': 'Текст',
+            'modal.hint': 'Текст',
             'modal.alt': 'Подпись',
             'modal.floating': 'Выравнивание',
             'modal.float_left': 'Слева',
@@ -935,6 +961,13 @@ mte.prototype = {
         }
         nImage += '</div>\n</div>\n';
         return nImage;
+    },
+
+    genTooltip: function (tooltip) {
+        var nTooltip = '<span class="tooltip">'+ tooltip.text +'<span class="tooltip_balloon">'
+            +'<span class="tooltip_title">'+ tooltip.title +'</span><span class="tooltip_hint">'+ tooltip.tooltip +'</span>\n'  // Без переноса в конце этой строки - не работает
+            +'</span></span>';
+        return nTooltip;
     },
 
     /*
@@ -1055,12 +1088,12 @@ mte.prototype = {
              * И в начале текущей строки нет открывающего тега p|div|h\d|ul|ol|li
              */
             if ((!strPrev
-                || (strPrev.search(/\<\/(p|div|h\d|ul|ol|li)\>$/igm) >= 0
+                || (strPrev.search(/\<\/(p|div|span|h\d|ul|ol|li)\>$/igm) >= 0
                     && strNext
-                    && strNext.search(/^\s*\<(p|div.*|h\d|ul|ol|li)\>/igm) < 0
+                    && strNext.search(/^\s*\<(p|div.*|span.*|h\d|ul|ol|li)\>/igm) < 0
                 ))
                 && str.length > 0
-                && str.search(/^\s*\<(p|div.*|h\d|ul|ol|li)\>|^\s*\<\/(p|div|h\d|ul|ol|li)\>/igm) < 0
+                && str.search(/^\s*\<(p|div.*|span.*|h\d|ul|ol|li)\>|^\s*\<\/(p|div|span|h\d|ul|ol|li)\>/igm) < 0
             ) {
                 str = '<p>'+ str;
             }
@@ -1072,9 +1105,9 @@ mte.prototype = {
              * И в начале следующей нет открывающих p|div|h\d|ul|ol|li
              */
             if (str.length > 0
-                && str.search(/\<\/(p|div|h\d|ul|ol|li)\>$|\<br\>$/igm) < 0
+                && str.search(/\<\/(p|div|span|h\d|ul|ol|li)\>$|\<br\>$/igm) < 0
                 && strNext.length > 0
-                && strNext.search(/^\s*\<(p|div.*|h\d|ul|ol|li)\>/igm) < 0
+                && strNext.search(/^\s*\<(p|div.*|span.*|h\d|ul|ol|li)\>/igm) < 0
             ) {
                 str = str +'<br>';
             }
@@ -1087,7 +1120,7 @@ mte.prototype = {
              * в конце текущей нет закрывающих ИЛИ открывающих p|div|h\d|ul|ol|li ИЛИ br
              */
             if (str.length > 0
-                && str.search(/\<\/(p|div|h\d|ul|ol|li)\>$|\<(p|div.*|h\d|ul|ol|li)\>$|\<br\>$/igm) < 0
+                && str.search(/\<\/(p|div|span|h\d|ul|ol|li)\>$|\<(p|div.*|span.*|h\d|ul|ol|li)\>$|\<br\>$/igm) < 0
             ) {
                 str = str +'</p>';
             }
