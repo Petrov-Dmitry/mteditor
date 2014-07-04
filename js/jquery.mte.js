@@ -598,13 +598,14 @@ mte.prototype = {
             switch (tag) {
                 // Работаем с существующей подсказкой
                 case 'span':
+                    var cloned = $(selected).clone()[0];
                     // Получим содержимое дочерних элементов title и text
-                    var tooltipTitle = $(selected).find('.title').remove()[0].innerHTML;
-                    var tooltipText = $(selected).find('.text').remove()[0].innerHTML;
+                    var tooltipTitle = $(cloned).find('.title').remove()[0].innerHTML;
+                    var tooltipText = $(cloned).find('.text').remove()[0].innerHTML;
                     // Удалим обертку
-                    $(selected).find('.balloon').remove();
+                    $(cloned).find('.balloon').remove();
                     // Получим текст ссылки
-                    if (!text) { text = selected.innerHTML; }
+                    if (!text) { text = cloned.innerHTML; }
                     // Открываем и заполняем форму ссылки
                     this.showModal('tooltip-form');
                     $('.mte_modal [name=name]').val(text);
