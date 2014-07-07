@@ -203,11 +203,11 @@ mte.prototype = {
          * TODO: работы по кнопкам списков вынесены в ветку lists
          */
         //'ol','ul','l_up','l_down','divider',
-        'a','image','tooltip'//,'divider',
+        'a','image','tooltip','divider',
         /**
          * TODO: look the clearFormat function description
          */
-        //'removeformat'
+        'removeformat'
     ],
 
     /**
@@ -427,6 +427,25 @@ mte.prototype = {
             document.execCommand('RemoveFormat', false, true);
             document.execCommand('FormatBlock', false, '<p>');
             _this.$div.focus();
+            return false;
+        },
+        // Очистка форматирования
+        'removeformat': function () {
+            var selected = this.getSelectedHtml();
+            for (var i = 0; i < selected.length; ++i) {
+                var tag = selected[i].tagName.toLowerCase();
+                if (tag === 'p' || tag.search(/h\d/i) >= 0) {
+                    var paragraph = $(selected[i]);
+                } else if (tag === 'b' || tag === 'i' || tag === 'strike' || tag === 'u') {
+                    var paragraph = $(selected[i]).closest('p');
+                }
+                var parAttrs = paragraph[0].attributes;
+                for (var j = 0; j < parAttrs.length; ++j) {
+                    paragraph.removeAttr(parAttrs[j].nodeName);
+                }
+            }
+            document.execCommand('RemoveFormat', false, true);
+            this.$div.focus();
             return false;
         },
 
@@ -819,33 +838,6 @@ mte.prototype = {
                     $('.mte_modal_remove').remove();
                     break;
             }
-        },
-
-        /**
-         * BUG TODO: использовать функцию для очистки форматирования не только пользователем, но и внутри компонента
-         *
-         * все теги, кроме описанных кнопками меню toolbarButtons должны удаляться
-         * должна удалять все атрибуты из оставшихся в тексте тегов
-         * должна форматировать код переносами после оставшихся в тексте закрывающих и непарных тегов
-         * другие переносы должна обрабатывать: одиночный - заменить на br, более - на p
-         * все спец-символы (кавычки, слеши, угловые скобки и т.п., но не угловые скобки тегов) должны быть заменены на HTML-сущности
-         *
-         * некорректно отрабатывает нажатие на Enter - сразу ставит p
-         *  после первого нажатия ставить br
-         *  после второго - менять br на p
-         *  последующие - игнорировать
-         *
-         * оборачивает текст, следующий за br в <p>, в результате имеем <p><br><p></p></p>
-         * добавляет br перед закрывающими тегами (например в заголовках или элементах списка)
-         */
-        'clearFormat': function () {
-            console.log('Ooops, clearFormat called...', this);
-            /*
-            document.execCommand('RemoveFormat', false, true);
-            document.execCommand('FormatBlock', false, '<p>');
-            */
-            this.$div.focus();
-            return false;
         }
     },
 
@@ -1253,10 +1245,10 @@ mte.prototype = {
             if ((!strPrev
                 || (strPrev.search(/\<\/(p|div|span|h\d|ul|ol|li)\>$/igm) >= 0
                     && strNext
-                    && strNext.search(/^\s*\<(p|div.*|span.*|h\d|ul|ol|li)\>/igm) < 0
+                    && strNext.search(/^\s*\<(p.*|div.*|span.*|h\d|ul|ol|li)\>/igm) < 0
                 ))
                 && str.length > 0
-                && str.search(/^\s*\<(p|div.*|span.*|h\d|ul|ol|li)\>|^\s*\<\/(p|div|span|h\d|ul|ol|li)\>/igm) < 0
+                && str.search(/^\s*\<(p.*|div.*|span.*|h\d|ul|ol|li)\>|^\s*\<\/(p|div|span|h\d|ul|ol|li)\>/igm) < 0
             ) {
                 str = '<p>'+ str;
             }
@@ -1270,7 +1262,7 @@ mte.prototype = {
             if (str.length > 0
                 && str.search(/\<\/(p|div|span|h\d|ul|ol|li)\>$|\<br\>$/igm) < 0
                 && strNext.length > 0
-                && strNext.search(/^\s*\<(p|div.*|span.*|h\d|ul|ol|li)\>/igm) < 0
+                && strNext.search(/^\s*\<(p.*|div.*|span.*|h\d|ul|ol|li)\>/igm) < 0
             ) {
                 str = str +'<br>';
             }
@@ -1283,7 +1275,7 @@ mte.prototype = {
              * в конце текущей нет закрывающих ИЛИ открывающих p|div|h\d|ul|ol|li ИЛИ br
              */
             if (str.length > 0
-                && str.search(/\<\/(p|div|span|h\d|ul|ol|li)\>$|\<(p|div.*|span.*|h\d|ul|ol|li)\>$|\<br\>$/igm) < 0
+                && str.search(/\<\/(p|div|span|h\d|ul|ol|li)\>$|\<(p.*|div.*|span.*|h\d|ul|ol|li)\>$|\<br\>$/igm) < 0
             ) {
                 str = str +'</p>';
             }
