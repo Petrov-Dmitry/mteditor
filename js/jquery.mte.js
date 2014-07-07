@@ -81,21 +81,41 @@ function mte(textarea, options) {
                 case 'b':       // Жирный
                     menuButtons.removeClass('active');
                     button.addClass('active');
+                    if ($node.closest('i').length) { _this.getButton('i').addClass('active'); }
+                    if ($node.closest('strike').length) { _this.getButton('strike').addClass('active'); }
+                    if ($node.closest('u').length) { _this.getButton('u').addClass('active'); }
+                    if ($node.closest('a').length) { _this.getButton('a').addClass('active'); }
+                    if ($node.closest('.tooltip').length) { _this.getButton('tooltip').addClass('active'); }
                     textFormatOptions.val('p');
                     break;
                 case 'i':       // Курсив
                     menuButtons.removeClass('active');
                     button.addClass('active');
+                    if ($node.closest('b').length) { _this.getButton('b').addClass('active'); }
+                    if ($node.closest('strike').length) { _this.getButton('strike').addClass('active'); }
+                    if ($node.closest('u').length) { _this.getButton('u').addClass('active'); }
+                    if ($node.closest('a').length) { _this.getButton('a').addClass('active'); }
+                    if ($node.closest('.tooltip').length) { _this.getButton('tooltip').addClass('active'); }
                     textFormatOptions.val('p');
                     break;
                 case 'strike':  // Зачеркнуто
                     menuButtons.removeClass('active');
                     button.addClass('active');
+                    if ($node.closest('b').length) { _this.getButton('b').addClass('active'); }
+                    if ($node.closest('i').length) { _this.getButton('i').addClass('active'); }
+                    if ($node.closest('u').length) { _this.getButton('u').addClass('active'); }
+                    if ($node.closest('a').length) { _this.getButton('a').addClass('active'); }
+                    if ($node.closest('.tooltip').length) { _this.getButton('tooltip').addClass('active'); }
                     textFormatOptions.val('p');
                     break;
                 case 'u':       // Подчеркнуто
                     menuButtons.removeClass('active');
                     button.addClass('active');
+                    if ($node.closest('b').length) { _this.getButton('b').addClass('active'); }
+                    if ($node.closest('i').length) { _this.getButton('i').addClass('active'); }
+                    if ($node.closest('strike').length) { _this.getButton('strike').addClass('active'); }
+                    if ($node.closest('a').length) { _this.getButton('a').addClass('active'); }
+                    if ($node.closest('.tooltip').length) { _this.getButton('tooltip').addClass('active'); }
                     textFormatOptions.val('p');
                     break;
                 case 'h1':      // Заголовок 1
