@@ -175,3 +175,28 @@
     content: 'X';
     padding: 6px;
 }
+.mte_modal_img_form .image_list {
+    display: none;
+    max-height: 300px;
+    overflow: auto;
+}
+.mte_modal_img_form .image_list .img {
+    float: left;
+    border: 1px solid #ccc;
+    width: 100px;
+    margin: 2px;
+    text-align: center;
+    font-size: 10px;
+}
+.mte_modal_img_form .image_list .img .title,
+.mte_modal_img_form .image_list .img .alt {
+    padding: 2px;
+    border-top: 1px solid #ccc;
+}
+.mte_modal_img_form .image_list .img img {
+    max-width: 100%;
+    max-height: 100%;
+}
+.mte_modal_img_form .image_list_close {
+    text-align: center;
+}

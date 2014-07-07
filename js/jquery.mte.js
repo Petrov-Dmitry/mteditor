@@ -14,6 +14,7 @@ function mte(textarea, options) {
     this.default_language = 'ru';
     this.default_mode = 'visual';
     this.default_file_uploader = '/mte/upload-image.php';
+    this.default_image_list = '/mte/image-list.php';
     this.default_menuDivider = '<span class="divider"></span>';
 
     var _this = this;
@@ -27,6 +28,7 @@ function mte(textarea, options) {
     }
     // Set options
     this.options.uploaderUrl = this.options.uploaderUrl || this.default_file_uploader;
+    this.options.imageList = this.options.imageList || this.default_image_list;
     this.toolbarButtons = this.options.toolbarButtons || this.toolbarButtons;
     this.language = this.options.language || this.default_language;
     this.options.mode = this.options.mode || this.default_mode;
@@ -52,9 +54,9 @@ function mte(textarea, options) {
         }
     });
 
-    /**
-     * Bind the reaction on events
-    **/
+    /*
+     * Bind the reaction on selection events
+     */
     this.$div.bind('keyup click', function (e) {
         console.log('\n=====================\nFocus on element');
         // Элементы интерфейса
@@ -141,7 +143,7 @@ function mte(textarea, options) {
                         button.addClass('active');
                     }
                     break;
-                case 'span':
+                case 'span':    // Подсказка
                     if ($node.hasClass('tooltip')
                         || $node.hasClass('tooltip_balloon')
                         || $node.hasClass('tooltip_title')
@@ -212,6 +214,9 @@ mte.prototype = {
      * TODO: см комментарий к toolbarButtons
      */
     plugins: {
+        /*
+         * Выделение текста
+         */
         'b': function () {
             this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('Bold', false, true);
@@ -237,6 +242,9 @@ mte.prototype = {
             return false;
         },
 
+        /*
+         * Списки
+         */
         /**
          * TODO: для действий ol, ul
          * Выбирать либо элементы li, либо p - смешанный набор игнорировать
@@ -376,7 +384,7 @@ mte.prototype = {
         },
 
         /*
-         * Функции форматов текста
+         * Форматы текста
          */
         'h1': function () {
             document.execCommand('RemoveFormat', false, true);
@@ -422,6 +430,9 @@ mte.prototype = {
             return false;
         },
 
+        /*
+         * Работа с картинками
+         */
         'image': function() {
             var selected = this.getSelectedHtml()[0];
             var tag = selected.tagName.toLowerCase();
@@ -453,6 +464,76 @@ mte.prototype = {
                         $('.mte_modal [name=float]').val(selectedImage.className);
                         $('.mte_modal [name=width]').val(selectedImage.width);
                         $('.mte_modal [name=height]').val(selectedImage.height);
+
+                        // Вешаем выбор картинки
+                        $('.mte_modal_choose_image').click(function () {
+                            var tblCol = $(this).parent();
+                            // Запросим AJAX-ом JSON с данными имеющихся на сервере картинок
+                            $.ajax({
+                                url: _this.options.imageList,
+                                dataType: 'json',
+                                // Принимаем ответ и отрисовываем блок
+                                success:  function (response) {
+                                    // Перезагрузка блока
+                                    if (tblCol.find('.image_list').length) {
+                                        tblCol.find('.image_list').remove();
+                                        tblCol.find('.image_list_close').remove();
+                                    }
+                                    // Добавим в конец колонки блок для списка картинок
+                                    var imgListBlock = $('<div class="image_list"></div>');
+                                    tblCol.append(imgListBlock);
+                                    // Добавим картинки в список
+                                    for (var i = 0; i < response.length; ++i) {
+                                        var imgBlock = $('<div class="img" id="'+ response[i].id +'">'
+                                            +'<img src="'+ response[i].path +'" title="'+ response[i].title +'" alt="'+ response[i].alt +'" />'
+                                            +'<div class="title">Title: '+ response[i].title +'</div>'
+                                            +'<div class="alt">Comment: '+ response[i].alt +'</div>'
+                                            +'</div>');
+                                        imgListBlock.append(imgBlock);
+                                    }
+                                    // Получим и ограничим ширину для блока списка картинок
+                                    var blWidth = tblCol.width();
+                                    imgListBlock.width(blWidth);
+                                    // Добавим кнопку закрытия блока списка картинок
+                                    var imgListClose = $('<div class="image_list_close"></div>').width(blWidth);
+                                    var imgListCloseButton = $('<input type="button" value="'+ _this.translate('modal.cancel') + '" class="mte_modal_close_image_list" />');
+                                    tblCol.append(imgListClose.append(imgListCloseButton));
+                                    // Покажем список картинок
+                                    imgListBlock.slideDown();
+                                    imgListClose.slideDown();
+
+                                    // "Вешаем" закрытие списка картинок
+                                    imgListCloseButton.click(function () {
+                                        imgListBlock.slideUp();
+                                        imgListClose.slideUp();
+                                    });
+
+                                    // "Вешаем" выбор картинки
+                                    imgListBlock.find('.img').click(function () {
+                                        var imgId = $(this).attr('id');
+                                        var img = $(this).children();
+                                        var imgSrc = img.attr('src');
+                                        var imgTitle = img.attr('title');
+                                        var imgAlt = img.attr('alt');
+                                        // Запишем значения в форму добавления картинки
+                                        $('.mte_modal [name=url]').val(imgSrc);
+                                        $('.mte_modal [name=title]').val(imgTitle);
+                                        $('.mte_modal [name=alt]').val(imgAlt);
+                                        // Закроем блок списка картинок
+                                        imgListBlock.slideUp();
+                                        imgListClose.slideUp();
+                                    });
+                                },
+                                // Ошибка загрузки JSQON
+                                error: function (response) {
+                                    //_this.closeModal();
+                                    //_this.restoreSelection();
+                                    console.log('error response', response);
+                                    //alert('Ошибка!\nФайл не загружен');
+                                }
+                            });
+                        });
+
                         // "Вешаем" отправку формы
                         $('.mte_modal_submit').click(function () {
                             var newImage = {
@@ -489,6 +570,76 @@ mte.prototype = {
                     }
                     // Покажем форму
                     this.showModal('image-form');
+
+                    // Вешаем выбор картинки
+                    $('.mte_modal_choose_image').click(function () {
+                        var tblCol = $(this).parent();
+                        // Запросим AJAX-ом JSON с данными имеющихся на сервере картинок
+                        $.ajax({
+                            url: _this.options.imageList,
+                            dataType: 'json',
+                            // Принимаем ответ и отрисовываем блок
+                            success:  function (response) {
+                                // Перезагрузка блока
+                                if (tblCol.find('.image_list').length) {
+                                    tblCol.find('.image_list').remove();
+                                    tblCol.find('.image_list_close').remove();
+                                }
+                                // Добавим в конец колонки блок для списка картинок
+                                var imgListBlock = $('<div class="image_list"></div>');
+                                tblCol.append(imgListBlock);
+                                // Добавим картинки в список
+                                for (var i = 0; i < response.length; ++i) {
+                                    var imgBlock = $('<div class="img" id="'+ response[i].id +'">'
+                                        +'<img src="'+ response[i].path +'" title="'+ response[i].title +'" alt="'+ response[i].alt +'" />'
+                                        +'<div class="title">Title: '+ response[i].title +'</div>'
+                                        +'<div class="alt">Comment: '+ response[i].alt +'</div>'
+                                        +'</div>');
+                                    imgListBlock.append(imgBlock);
+                                }
+                                // Получим и ограничим ширину для блока списка картинок
+                                var blWidth = tblCol.width();
+                                imgListBlock.width(blWidth);
+                                // Добавим кнопку закрытия блока списка картинок
+                                var imgListClose = $('<div class="image_list_close"></div>').width(blWidth);
+                                var imgListCloseButton = $('<input type="button" value="'+ _this.translate('modal.cancel') + '" class="mte_modal_close_image_list" />');
+                                tblCol.append(imgListClose.append(imgListCloseButton));
+                                // Покажем список картинок
+                                imgListBlock.slideDown();
+                                imgListClose.slideDown();
+
+                                // "Вешаем" закрытие списка картинок
+                                imgListCloseButton.click(function () {
+                                    imgListBlock.slideUp();
+                                    imgListClose.slideUp();
+                                });
+
+                                // "Вешаем" выбор картинки
+                                imgListBlock.find('.img').click(function () {
+                                    var imgId = $(this).attr('id');
+                                    var img = $(this).children();
+                                    var imgSrc = img.attr('src');
+                                    var imgTitle = img.attr('title');
+                                    var imgAlt = img.attr('alt');
+                                    // Запишем значения в форму добавления картинки
+                                    $('.mte_modal [name=url]').val(imgSrc);
+                                    $('.mte_modal [name=title]').val(imgTitle);
+                                    $('.mte_modal [name=alt]').val(imgAlt);
+                                    // Закроем блок списка картинок
+                                    imgListBlock.slideUp();
+                                    imgListClose.slideUp();
+                                });
+                            },
+                            // Ошибка загрузки JSQON
+                            error: function (response) {
+                                //_this.closeModal();
+                                //_this.restoreSelection();
+                                console.log('error response', response);
+                                //alert('Ошибка!\nФайл не загружен');
+                            }
+                        });
+                    });
+
                     // "Вешаем" AJAX-запрос на отправку формы
                     $('.mte_modal_submit').click(function () {
                         var formData = new FormData($('form')[0]);
@@ -507,7 +658,7 @@ mte.prototype = {
                             processData: false,
                             //beforeSend: beforeSendHandler,
                             // Принимаем ответ и отрисовываем блок картинки
-                            success: function (response){
+                            success: function (response) {
                                 _this.closeModal();
                                 _this.restoreSelection();
                                 selected.before(_this.genImage(response));
@@ -522,6 +673,7 @@ mte.prototype = {
                             }
                         });
                     });
+
                     // Картинки еще нет - кнопка удалить не нужна
                     $('.mte_modal_remove').remove();
                     break;
@@ -529,6 +681,9 @@ mte.prototype = {
             return false;
         },
 
+        /*
+         * Работа со ссылками
+         */
         'a': function() {
             var selected = this.getSelectedHtml()[0];
             var tag = selected.tagName.toLowerCase();
@@ -592,6 +747,9 @@ mte.prototype = {
             return false;
         },
 
+        /*
+         * Работа с подсказками
+         */
         'tooltip': function () {
             var selected = this.getSelectedHtml()[0];
             var tag = selected.tagName.toLowerCase();
@@ -720,7 +878,10 @@ mte.prototype = {
                     </tr>\
                     <tr>\
                         <td>{{modal.link}}:</td>\
-                        <td><input type="text" name="url" size="40" value="" /></td>\
+                        <td>\
+                            <input type="text" name="url" size="30" value="" />\
+                            <input type="button" value="{{modal.choose_image}}" class="mte_modal_choose_image" />\
+                        </td>\
                     </tr>\
                     <tr>\
                         <td>{{modal.title}}:</td>\
@@ -766,7 +927,7 @@ mte.prototype = {
                 </tr>\
                 <tr>\
                     <td>{{modal.link}}:</td>\
-                    <td><input type="text" name="url" size="40" value="http://" /></td>\
+                    <td><input type="text" name="url" size="30" value="http://" /></td>\
                 </tr>\
                 <tr>\
                     <td>{{modal.target}}:</td>\
@@ -843,6 +1004,7 @@ mte.prototype = {
             'modal.insert_tooltip': 'Tooltip',
             'modal.image': 'Image',
             'modal.link': 'Link',
+            'modal.choose_image': 'Choose',
             'modal.title': 'Title',
             'modal.hint': 'Text',
             'modal.alt': 'Alt',
@@ -892,6 +1054,7 @@ mte.prototype = {
             'modal.insert_tooltip': 'Подсказка',
             'modal.image': 'Изображение',
             'modal.link': 'Ссылка',
+            'modal.choose_image': 'Выбрать',
             'modal.title': 'Заголовок',
             'modal.hint': 'Текст',
             'modal.alt': 'Подпись',
