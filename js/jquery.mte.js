@@ -58,18 +58,18 @@ function mte(textarea, options) {
      * Bind the reaction on selection events
      */
     this.$div.bind('keyup click', function (e) {
-        console.log('\n=====================\nFocus on element');
+        //console.log('\n=====================\nFocus on element');
         // Элементы интерфейса
         var menuButtons = _this.getToolbar().find('.mte_toolbar_button');
         var textFormatOptions = _this.getToolbar().find('.mte_toolbar_select[name="textFormat"]');
 
         var $nodes = _this.getSelectedHtml();
-        console.log('Catch selection-event on '+ $nodes.length +' elements');
-        console.log('Selected elements', $nodes);
+        //console.log('Catch selection-event on '+ $nodes.length +' elements');
+        //console.log('Selected elements', $nodes);
 
         // Если элементов множество
         if ($nodes.length > 1) {
-            console.log('элементов множество', $nodes);
+            //console.log('элементов множество', $nodes);
             //var $node = $(_this.getSelectionStartNode());
         // Если элемет один
         } else {
@@ -183,7 +183,7 @@ function mte(textarea, options) {
                     break;
             }
         }
-        console.log('=====================\n');
+        //console.log('=====================\n');
     });
 
     // Making menu-toolbar
@@ -278,9 +278,9 @@ mte.prototype = {
          *  следующие вдали от списков - заменить новым списком (вырезать и записать как li в новый список).
          */
         'ol': function () {
-            console.log('OL');
+            //console.log('OL');
             selectedElements = this.getSelectedHtml();
-            console.log('selectedElements', selectedElements);
+            //console.log('selectedElements', selectedElements);
             /*
             this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('InsertOrderedList', false, true);
@@ -289,9 +289,9 @@ mte.prototype = {
             return false;
         },
         'ul': function () {
-            console.log('UL');
+            //console.log('UL');
             selectedElements = this.getSelectedHtml();
-            console.log('selectedElements', selectedElements);
+            //console.log('selectedElements', selectedElements);
             /*
             this.getToolbar().find('.mte_toolbar_button').removeClass('active');
             document.execCommand('InsertUnorderedList', false, true);
@@ -567,7 +567,7 @@ mte.prototype = {
                                 error: function (response) {
                                     //_this.closeModal();
                                     //_this.restoreSelection();
-                                    console.log('error response', response);
+                                    //console.log('error response', response);
                                     //alert('Ошибка!\nФайл не загружен');
                                 }
                             });
@@ -673,7 +673,7 @@ mte.prototype = {
                             error: function (response) {
                                 //_this.closeModal();
                                 //_this.restoreSelection();
-                                console.log('error response', response);
+                                //console.log('error response', response);
                                 //alert('Ошибка!\nФайл не загружен');
                             }
                         });
@@ -707,7 +707,7 @@ mte.prototype = {
                             error: function (response) {
                                 _this.closeModal();
                                 _this.restoreSelection();
-                                console.log('response', response);
+                                //console.log('response', response);
                                 alert('Ошибка!\nФайл не загружен');
                             }
                         });
