@@ -208,7 +208,7 @@ function mte(textarea, options) {
     });
 
     // AJAX image uploading
-    this.templates['image-form'] = this.templates['image-form'].replace('{{UPLOADER_URL}}', this.options.uploaderUrl);
+    this.templates['image-form'] = this.templates['image-form'].replace('##UPLOADER_URL##', this.options.uploaderUrl);
 }
 
 mte.prototype = {
@@ -871,117 +871,117 @@ mte.prototype = {
             <div style="clear: left;"></div>',
 
         'switch': '<div class="mte_switch">\
-                <a class="mte_switch_html" href="#">{{toolbar.html_mode}}</a>\
-                <a class="mte_switch_visual" href="#">{{toolbar.visual_mode}}</a>\
+                <a class="mte_switch_html" href="#">##toolbar.html_mode##</a>\
+                <a class="mte_switch_visual" href="#">##toolbar.visual_mode##</a>\
             </div>',
 
         'modal': '<div class="mte_modal"><div class="mte_modal_close"></div></div>',
 
         'modal-background': '<div class="mte_modal_background"></div>',
 
-        'image-form': '<h1>{{modal.insert_image}}</h1>\
-            <form class="mte_modal_img_form" action="{{UPLOADER_URL}}" method="POST" enctype="multipart/form-data" >\
+        'image-form': '<h1>##modal.insert_image##</h1>\
+            <form class="mte_modal_img_form" action="##UPLOADER_URL##" method="POST" enctype="multipart/form-data" >\
                 <table>\
                     <tr>\
-                        <td>{{modal.image}}:</td>\
+                        <td>##modal.image##:</td>\
                         <td>\
                             <input type="file" name="file" /><br />\
                         </td>\
                     </tr>\
                     <tr>\
-                        <td><small>{{modal.or}}</small></td>\
+                        <td><small>##modal.or##</small></td>\
                         <td></td>\
                     </tr>\
                     <tr>\
-                        <td>{{modal.link}}:</td>\
+                        <td>##modal.link##:</td>\
                         <td>\
                             <input type="text" name="url" size="30" value="" />\
-                            <input type="button" value="{{modal.choose_image}}" class="mte_modal_choose_image" />\
+                            <input type="button" value="##modal.choose_image##" class="mte_modal_choose_image" />\
                         </td>\
                     </tr>\
                     <tr>\
-                        <td>{{modal.title}}:</td>\
+                        <td>##modal.title##:</td>\
                         <td><input type="text" name="title" size="40" value="" /></td>\
                     </tr>\
                     <tr>\
-                        <td>{{modal.alt}}:</td>\
+                        <td>##modal.alt##:</td>\
                         <td><textarea name="alt" cols="39" rows="4" style="resize: none;"></textarea></td>\
                     </tr>\
                     <tr>\
-                        <td>{{modal.floating}}:</td>\
+                        <td>##modal.floating##:</td>\
                         <td>\
                             <select name="float">\
-                                <option value="left">{{modal.float_left}}</option>\
-                                <option value="center">{{modal.float_center}}</option>\
-                                <option value="right">{{modal.float_right}}</option>\
+                                <option value="left">##modal.float_left##</option>\
+                                <option value="center">##modal.float_center##</option>\
+                                <option value="right">##modal.float_right##</option>\
                             </select>\
                         </td>\
                     </tr>\
                     <tr>\
-                        <td>{{modal.dimensions}}:</td>\
+                        <td>##modal.dimensions##:</td>\
                         <td>\
-                            <input type="text" name="width" title="{{modal.width}}" size="4" value="" />px\
+                            <input type="text" name="width" title="##modal.width##" size="4" value="" />px\
                             <span class="dim_div"></span>\
-                            <input type="text" name="height" title="{{modal.height}}" size="4" value="" />px\
+                            <input type="text" name="height" title="##modal.height##" size="4" value="" />px\
                         </td>\
                     </tr>\
                     <tr colspan="2">\
                         <td>\
-                            <input type="button" value="{{modal.insert}}" class="mte_modal_submit" />\
-                            <input type="button" value="{{modal.cancel}}" class="mte_modal_cancel" />\
-                            <input type="button" value="{{modal.remove}}" class="mte_modal_remove" />\
+                            <input type="button" value="##modal.insert##" class="mte_modal_submit" />\
+                            <input type="button" value="##modal.cancel##" class="mte_modal_cancel" />\
+                            <input type="button" value="##modal.remove##" class="mte_modal_remove" />\
                         </td>\
                     </tr>\
                 </table>\
             </form> ',
 
-        'link-form': '<h1>{{modal.insert_link}}</h1>\
+        'link-form': '<h1>##modal.insert_link##</h1>\
             <table>\
                 <tr>\
-                    <td>{{modal.name}}:</td>\
+                    <td>##modal.name##:</td>\
                     <td><input type="text" name="name" size="40" /></td>\
                 </tr>\
                 <tr>\
-                    <td>{{modal.link}}:</td>\
+                    <td>##modal.link##:</td>\
                     <td><input type="text" name="url" size="30" value="http://" /></td>\
                 </tr>\
                 <tr>\
-                    <td>{{modal.target}}:</td>\
+                    <td>##modal.target##:</td>\
                     <td>\
                         <select name="target">\
-                            <option value="_blank">{{modal.newwindow}}</option>\
-                            <option value="_self">{{modal.selfwindow}}</option>\
+                            <option value="_blank">##modal.newwindow##</option>\
+                            <option value="_self">##modal.selfwindow##</option>\
                         </select>\
                     </td>\
                 </tr>\
                 <tr colspan="2">\
                     <td>\
-                        <input type="button" value="{{modal.insert}}" class="mte_modal_submit" />\
-                        <input type="button" value="{{modal.cancel}}" class="mte_modal_cancel" />\
-                        <input type="button" value="{{modal.remove}}" class="mte_modal_remove" />\
+                        <input type="button" value="##modal.insert##" class="mte_modal_submit" />\
+                        <input type="button" value="##modal.cancel##" class="mte_modal_cancel" />\
+                        <input type="button" value="##modal.remove##" class="mte_modal_remove" />\
                     </td>\
                 </tr>\
             </table>',
 
-        'tooltip-form': '<h1>{{modal.insert_tooltip}}</h1>\
+        'tooltip-form': '<h1>##modal.insert_tooltip##</h1>\
             <table>\
                 <tr>\
-                    <td>{{modal.name}}:</td>\
+                    <td>##modal.name##:</td>\
                     <td><input type="text" name="name" size="40" value="" /></td>\
                 </tr>\
                 <tr>\
-                    <td>{{modal.title}}:</td>\
+                    <td>##modal.title##:</td>\
                     <td><input type="text" name="title" size="40" value="" /></td>\
                 </tr>\
                 <tr>\
-                    <td>{{modal.hint}}:</td>\
+                    <td>##modal.hint##:</td>\
                     <td><textarea name="hint" cols="39" rows="4" style="resize: none;"></textarea></td>\
                 </tr>\
                 <tr colspan="2">\
                     <td>\
-                        <input type="button" value="{{modal.insert}}" class="mte_modal_submit" />\
-                        <input type="button" value="{{modal.cancel}}" class="mte_modal_cancel" />\
-                        <input type="button" value="{{modal.remove}}" class="mte_modal_remove" />\
+                        <input type="button" value="##modal.insert##" class="mte_modal_submit" />\
+                        <input type="button" value="##modal.cancel##" class="mte_modal_cancel" />\
+                        <input type="button" value="##modal.remove##" class="mte_modal_remove" />\
                     </td>\
                 </tr>\
             </table>'
@@ -1101,7 +1101,7 @@ mte.prototype = {
     },
 
     renderTemplate: function (html, context){
-        var tokens = html.match(/{{[\w\._]+}}/g) || [];
+        var tokens = html.match(/##[\w\._]+##/g) || [];
         for (var i=0; i<tokens.length; ++i){
             var token = tokens[i];
             var name = token.slice(2,-2);
