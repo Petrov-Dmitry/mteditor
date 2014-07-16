@@ -3,6 +3,8 @@
  * Здесь нам нужно отдать JSON с массивом картинок,
  * якобы загруженных на сервер ранее
  */
+header('Content-Type: application/json');
+
 $imgList = array();
 for ($i = 0; $i < 13; ++$i) {
     $imgList[$i] = array(
@@ -12,4 +14,4 @@ for ($i = 0; $i < 13; ++$i) {
         'alt' => 'Image comment '.$i,
     );
 }
-print_r(json_encode($imgList));
+echo(json_encode($imgList));

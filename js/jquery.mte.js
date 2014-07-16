@@ -700,8 +700,12 @@ mte.prototype = {
                             success: function (response) {
                                 _this.closeModal();
                                 _this.restoreSelection();
-                                selected.before(_this.genImage(response));
-                                button.addClass('active');
+                                if (response.state === true) {
+                                    selected.before(_this.genImage(response));
+                                    button.addClass('active');
+                                } else {
+                                    alert('Ошибка!\nФайл не загружен');
+                                }
                             },
                             // Ошибка загрузки файла
                             error: function (response) {
